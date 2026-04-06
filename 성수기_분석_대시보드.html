@@ -1,0 +1,432 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>iloom 성수기 분석 대시보드</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700&family=Noto+Sans+KR:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<style>
+:root {
+  --brand-red: #c80a1e;
+  --brand-red-light: rgba(200,10,30,0.08);
+  --bg-main: #FFFFFF; --bg-alt: #F8F8F8;
+  --text-primary: #333; --text-secondary: #999;
+  --border: #E0E0E0; --border-light: #F0F0F0;
+  --sidebar-w: 220px;
+}
+* { margin:0; padding:0; box-sizing:border-box; }
+body {
+  font-family: 'Noto Sans KR', sans-serif;
+  background: var(--bg-alt); color: var(--text-primary);
+  -webkit-font-smoothing: antialiased; line-height:1.6; letter-spacing:-0.2px;
+}
+
+/* Sidebar */
+.sidebar {
+  position: fixed; top: 0; left: 0; width: var(--sidebar-w); height: 100vh;
+  background: var(--bg-main); border-right: 1px solid var(--border);
+  display: flex; flex-direction: column; z-index: 100;
+}
+.sidebar-brand {
+  padding: 24px 20px 20px;
+  border-bottom: 1px solid var(--border);
+}
+.sidebar-brand .logo {
+  font-family: 'Montserrat'; font-weight: 700; font-size: 18px;
+  color: var(--brand-red); letter-spacing: 2px;
+}
+.sidebar-brand .tagline {
+  font-size: 11px; color: var(--text-secondary); margin-top: 4px;
+}
+.sidebar-nav { padding: 16px 0; flex: 1; }
+.nav-section { padding: 8px 20px 4px; font-size: 11px; color: var(--text-secondary); font-weight: 600; letter-spacing: 0.5px; }
+.nav-item {
+  display: flex; align-items: center; gap: 10px;
+  padding: 10px 20px; cursor: pointer;
+  font-size: 13px; color: var(--text-primary);
+  border-left: 3px solid transparent;
+  transition: all 0.15s;
+}
+.nav-item:hover { background: var(--bg-alt); }
+.nav-item.active {
+  color: var(--brand-red); font-weight: 500;
+  border-left-color: var(--brand-red);
+  background: var(--brand-red-light);
+}
+.nav-dot {
+  width: 8px; height: 8px; flex-shrink: 0;
+}
+.sidebar-footer {
+  padding: 16px 20px; border-top: 1px solid var(--border);
+  font-size: 11px; color: var(--text-secondary);
+}
+
+/* Main content */
+.main { margin-left: var(--sidebar-w); }
+.page { display: none; }
+.page.active { display: block; }
+
+.header {
+  background: var(--bg-main); border-bottom: 1px solid var(--border);
+  padding: 24px 32px 20px;
+}
+.header h1 { font-size: 22px; font-weight: 600; margin-bottom: 2px; }
+.header .subtitle { font-size: 13px; color: var(--text-secondary); }
+
+.kpi-bar {
+  padding: 20px 32px 0;
+  display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px;
+}
+.kpi {
+  background: var(--bg-main); border: 1px solid var(--border);
+  padding: 16px 20px; text-align: center;
+}
+.kpi .value {
+  font-family: 'Montserrat'; font-size: 26px; font-weight: 700; line-height: 1.2;
+}
+.kpi .value .unit {
+  font-family: 'Noto Sans KR'; font-size: 13px; font-weight: 400; color: var(--text-secondary); margin-left: 2px;
+}
+.kpi .label { font-size: 11px; color: var(--text-secondary); margin-top: 4px; }
+.kpi .change { font-size: 12px; font-weight: 600; margin-top: 3px; }
+.kpi .change.up { color: #2ecc71; }
+.kpi .change.down { color: var(--brand-red); }
+
+.dashboard {
+  padding: 20px 32px; display: grid;
+  grid-template-columns: 1fr 1fr; gap: 18px;
+}
+.card {
+  background: var(--bg-main); border: 1px solid var(--border); padding: 20px;
+}
+.card.full { grid-column: 1 / -1; }
+.card h2 { font-size: 14px; font-weight: 600; margin-bottom: 2px; }
+.card .card-sub { font-size: 11px; color: var(--text-secondary); margin-bottom: 16px; }
+.chart-container { position: relative; height: 360px; }
+.chart-container.tall { height: 480px; }
+
+.tab-bar { display: flex; gap: 0; margin-bottom: 16px; border-bottom: 1px solid var(--border); }
+.tab-btn {
+  padding: 6px 14px; border: none; background: transparent; cursor: pointer;
+  font-family: 'Noto Sans KR'; font-size: 12px; color: var(--text-secondary);
+  border-bottom: 2px solid transparent; margin-bottom: -1px; transition: color 0.15s;
+}
+.tab-btn:hover { color: var(--text-primary); }
+.tab-btn.active { color: var(--brand-red); font-weight: 500; border-bottom-color: var(--brand-red); }
+
+.insight {
+  background: var(--brand-red-light); border-left: 3px solid var(--brand-red);
+  padding: 12px 16px; margin-top: 14px; font-size: 12px; line-height: 1.7;
+}
+.insight strong { color: var(--brand-red); }
+
+.pair-row { display: flex; align-items: center; padding: 8px 0; border-bottom: 1px solid var(--border-light); gap: 8px; }
+.pair-row:last-child { border-bottom: none; }
+.pair-num { width: 20px; font-family: 'Montserrat'; font-size: 11px; font-weight: 600; color: var(--text-secondary); text-align: center; flex-shrink: 0; }
+.pair-items { flex: 1; font-size: 12px; line-height: 1.4; }
+.pair-items b { font-weight: 500; }
+.pair-stat { width: 45px; text-align: right; font-family: 'Montserrat'; font-size: 12px; font-weight: 600; flex-shrink: 0; }
+.pair-stat .unit { font-size: 10px; font-weight: 400; color: var(--text-secondary); }
+.pair-conf { width: 90px; flex-shrink: 0; display: flex; align-items: center; gap: 5px; }
+.conf-bar { display: inline-block; height: 10px; background: var(--brand-red); opacity: 0.7; min-width: 3px; }
+.conf-text { font-family: 'Montserrat'; font-size: 10px; color: var(--text-secondary); }
+
+.legend-bar { display: flex; gap: 14px; flex-wrap: wrap; margin-bottom: 14px; }
+.legend-item { display: flex; align-items: center; gap: 5px; font-size: 11px; color: var(--text-secondary); }
+.legend-dot { width: 8px; height: 8px; flex-shrink: 0; }
+
+.footer { padding: 20px 32px; text-align: center; font-size: 11px; color: var(--text-secondary); border-top: 1px solid var(--border); }
+.footer .brand { font-family: 'Montserrat'; font-weight: 600; color: var(--brand-red); letter-spacing: 1px; }
+
+@media (max-width: 1000px) {
+  .sidebar { width: 180px; }
+  .main { margin-left: 180px; }
+  .dashboard { grid-template-columns: 1fr; }
+  .kpi-bar { grid-template-columns: repeat(2, 1fr); }
+}
+</style>
+</head>
+<body>
+
+<!-- SIDEBAR -->
+<div class="sidebar">
+  <div class="sidebar-brand">
+    <div class="logo">iloom</div>
+    <div class="tagline">성수기 분석 대시보드</div>
+  </div>
+  <div class="sidebar-nav">
+    <div class="nav-section">STUDY ROOM</div>
+    <div class="nav-item active" onclick="showPage('student', this)">
+      <svg class="nav-dot" viewBox="0 0 8 8"><rect width="8" height="8" fill="#c80a1e"/></svg>
+      학생방 시리즈 비교
+    </div>
+    <div class="nav-item" onclick="showPage('newt', this)">
+      <svg class="nav-dot" viewBox="0 0 8 8"><rect width="8" height="8" fill="#5B7B9A"/></svg>
+      NEWT 핵심품목 분석
+    </div>
+  </div>
+  <div class="sidebar-footer">
+    고문정팀 리서치<br>2026-03-12
+  </div>
+</div>
+
+<!-- MAIN -->
+<div class="main">
+
+<!-- ==================== PAGE 1: 학생방 ==================== -->
+<div class="page active" id="page-student">
+
+<div class="header">
+  <h1>학생방 성수기 수주분석</h1>
+  <div class="subtitle">25-26 성수기 (25.11~26.03) vs 24-25 성수기 (24.11~25.03)</div>
+</div>
+
+<div class="kpi-bar">
+  <div class="kpi"><div class="value" id="s-kpi-total">-</div><div class="label">스터디 총 수주금액</div><div class="change" id="s-kpi-total-yoy">-</div></div>
+  <div class="kpi"><div class="value" id="s-kpi-newt">-</div><div class="label">뉴트</div><div class="change" id="s-kpi-newt-yoy">-</div></div>
+  <div class="kpi"><div class="value" id="s-kpi-roy">-</div><div class="label">로이</div><div class="change" id="s-kpi-roy-yoy">-</div></div>
+  <div class="kpi"><div class="value" id="s-kpi-share">-</div><div class="label">뉴트 점유율</div><div class="change" id="s-kpi-share-chg">-</div></div>
+</div>
+
+<div class="dashboard">
+  <div class="card full"><h2>1. 시리즈별 월별 수주금액 추이</h2><div class="card-sub">25-26 (실선) vs 24-25 (점선)</div><div class="chart-container"><canvas id="s-chart1"></canvas></div></div>
+  <div class="card"><h2>2. 시리즈별 점유율 변화</h2><div class="card-sub">스터디 내 수주금액 비중</div><div class="chart-container"><canvas id="s-chart2"></canvas></div></div>
+  <div class="card"><h2>3. 시리즈별 YoY 성장률</h2><div class="card-sub">전년 동기 대비</div><div class="chart-container"><canvas id="s-chart3"></canvas></div></div>
+  <div class="card full"><h2>4. 시리즈별 카테고리 구성</h2><div class="card-sub">책상류, 수납장, 침대, 패키지 비중 (%)</div><div class="chart-container"><canvas id="s-chart4"></canvas></div></div>
+  <div class="card full"><h2>5. 책상 시리즈별 수주 수량</h2><div class="card-sub">모션책상 + 일반책상</div>
+    <div class="tab-bar"><button class="tab-btn active" onclick="toggleSDesk(this,'total')">합산</button><button class="tab-btn" onclick="toggleSDesk(this,'split')">모션/일반 분리</button></div>
+    <div class="chart-container tall"><canvas id="s-chart5"></canvas></div><div class="insight" id="s-insight5"></div></div>
+  <div class="card full"><h2>6. 일룸 전체 카테고리 수주비중</h2><div class="card-sub">스터디 카테고리 전사 비중 추이</div><div class="chart-container"><canvas id="s-chart6"></canvas></div></div>
+</div>
+<div class="footer"><span class="brand">iloom</span> 고문정팀</div>
+</div>
+
+<!-- ==================== PAGE 2: 뉴트 ==================== -->
+<div class="page" id="page-newt">
+
+<div class="header">
+  <h1>NEWT 시리즈 — 성수기 핵심품목 분석</h1>
+  <div class="subtitle">성수기 분석 기간 2025.11 ~ 2026.02</div>
+</div>
+
+<div class="kpi-bar">
+  <div class="kpi"><div class="value" id="n-kpi-items">-</div><div class="label">분석 품목 수</div></div>
+  <div class="kpi"><div class="value" id="n-kpi-cust">-</div><div class="label">분석 고객 수</div></div>
+  <div class="kpi"><div class="value" id="n-kpi-qty">-</div><div class="label">고객당 평균 구매수량</div></div>
+  <div class="kpi"><div class="value" id="n-kpi-unique">-</div><div class="label">고객당 평균 품목종류</div></div>
+  <div class="kpi"><div class="value" id="n-kpi-amt">-</div><div class="label">평균 객단가</div></div>
+</div>
+
+<div class="dashboard">
+  <div class="card full"><h2>1. NEWT 품목별 판매 비중 Top 25</h2><div class="card-sub">2025.11 ~ 2026.02 성수기 수주 기준</div>
+    <div class="tab-bar"><button class="tab-btn active" onclick="toggleN1(this,'qty')">수량</button><button class="tab-btn" onclick="toggleN1(this,'amt')">금액</button></div>
+    <div id="n-legend1" class="legend-bar"></div><div class="chart-container tall"><canvas id="n-chart1"></canvas></div></div>
+  <div class="card full"><h2>2. 카테고리별 월별 수주량 추이</h2><div class="card-sub">성수기(25.11~26.02) 구간 하이라이트</div><div class="chart-container"><canvas id="n-chart2"></canvas></div></div>
+  <div class="card full"><h2>2-1. 품목별 성수기 집중도</h2><div class="card-sub">성수기 vs 비수기 수주량</div><div class="chart-container tall"><canvas id="n-chart2b"></canvas></div><div class="insight" id="n-insight2b"></div></div>
+  <div class="card"><h2>3. 동시구매 조합 — 전체 Top 15</h2><div class="card-sub">2/27~3/2 데이터</div><div id="n-copurchase" style="max-height:480px;overflow-y:auto;"></div><div class="insight" id="n-insight3"></div></div>
+  <div class="card"><h2>3-1. 동시구매 — 책상 포함</h2><div class="card-sub">책상 품목 포함 조합만</div><div id="n-copurchase-desk" style="max-height:480px;overflow-y:auto;"></div><div class="insight" id="n-insight3d"></div></div>
+  <div class="card full"><h2>4. 고객 구매 패턴 분포</h2><div class="card-sub">고객당 구매 수량 / 품목 종류 / 객단가 분포</div>
+    <div class="tab-bar"><button class="tab-btn active" onclick="toggleN4(this,'qty')">수량별</button><button class="tab-btn" onclick="toggleN4(this,'unique')">종류별</button><button class="tab-btn" onclick="toggleN4(this,'amt')">객단가별</button></div>
+    <div class="chart-container"><canvas id="n-chart4"></canvas></div><div class="insight" id="n-insight4"></div></div>
+</div>
+<div class="footer"><span class="brand">iloom</span> 고문정팀</div>
+</div>
+
+</div><!-- /main -->
+
+<script>
+// ====== PAGE SWITCHING ======
+let currentPage = 'student';
+const chartInstances = {};
+
+function showPage(page, el) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.getElementById('page-' + page).classList.add('active');
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  el.classList.add('active');
+
+  if (page !== currentPage) {
+    currentPage = page;
+    if (page === 'student' && !chartInstances.s1) initStudent();
+    if (page === 'newt' && !chartInstances.n1) initNewt();
+  }
+}
+
+// ====== SHARED ======
+Chart.defaults.font.family = "'Noto Sans KR', sans-serif";
+Chart.defaults.font.size = 11;
+Chart.defaults.color = '#999';
+Chart.defaults.plugins.legend.labels.usePointStyle = true;
+Chart.defaults.plugins.legend.labels.pointStyle = 'rect';
+const RED = '#c80a1e';
+const SC = { '뉴트':'#c80a1e', '로이':'#5B7B9A', '링키플러스':'#7BA08C', '멘디':'#C4A76C', '로이모노':'#8DAEC0', '링키S':'#9BC0B0', '다나':'#A0A0A0' };
+const CC = { '책상':'#5B7B9A','책장':'#7BA08C','파티션책장':'#4A9070','옷장':'#8B7BAA','침대':'#C07A5C','수납':'#C4A76C','악세서리':'#A0A0A0','기타':'#CCC' };
+function fA(v) { return Math.round(v/1e8).toLocaleString(); }
+function sn(n) { n=n.replace(/뉴트 /g,''); return n.length>22 ? n.substring(0,22)+'...' : n; }
+
+// ====== STUDENT PAGE ======
+const SD = {"series_amt_2526": {"뉴트": [1435972551, 2505378798, 3439165536, 3453404453, 674489803], "로이": [883134474, 1362112104, 1708578790, 1698736093, 287383419], "링키플러스": [619344535, 905414253, 1095365796, 1140110346, 161810899], "멘디": [314933741, 483044653, 646225280, 690090693, 73509743]}, "series_amt_2425": {"뉴트": [102737858, 981035827, 1885004466, 2646587511, 331654222], "로이": [1124360363, 2011520007, 2386922743, 2880911891, 386631374], "링키플러스": [671914729, 1313765096, 1561415564, 1761786167, 197988583], "멘디": [435140223, 427437597, 651643611, 811625595, 47953946]}, "series_total_2526": {"뉴트": 11508411141, "로이": 5939944880, "링키플러스": 3922045829, "멘디": 2207804110}, "series_total_2425": {"뉴트": 5947019884, "로이": 8790346378, "링키플러스": 5506870139, "멘디": 2373800972}, "series_yoy": {"뉴트": 93.5, "로이": -32.4, "링키플러스": -28.8, "멘디": -7.0}, "series_share_2526": {"뉴트": 48.8, "로이": 25.2, "링키플러스": 16.6, "멘디": 9.4}, "series_share_2425": {"뉴트": 26.3, "로이": 38.9, "링키플러스": 24.3, "멘디": 10.5}, "grand_total_2526": 23578205960, "grand_total_2425": 22618037373, "series_cat_2526": {"뉴트": {"수납장": [349647844, 596655850, 799970158, 806428490, 150311663], "책상 및 책상류": [814232750, 1484462061, 2005797517, 2055232825, 418631968], "침대": [272091957, 424260887, 633397861, 591743138, 105546172]}, "로이": {"수납장": [332932716, 432991498, 529244274, 552108728, 91255898], "책상 및 책상류": [550201758, 929120606, 1179334516, 1146627365, 196127521]}, "링키플러스": {"수납장": [189061570, 256402789, 314768908, 300210741, 45224567], "책상 및 책상류": [430282965, 649011464, 780596888, 839899605, 116586332]}, "멘디": {"수납장": [64301691, 97450164, 140248313, 144664164, 20950862], "책상 및 책상류": [73183805, 119494225, 184554839, 168053524, 18518395], "침대": [40237675, 63287176, 105976415, 113286223, 14375637], "패키지": [137210570, 202813088, 215445713, 264086782, 19664849]}}, "desk_2526": {"모션책상": {"뉴트": [276, 581, 848, 887, 187], "로이": [118, 167, 204, 199, 44], "멘디": [53, 133, 197, 193, 17], "링키플러스": [90, 135, 156, 145, 19]}, "일반책상": {"로이": [582, 1019, 1252, 1221, 200], "뉴트": [637, 891, 1218, 1212, 221], "로이모노": [398, 573, 864, 1131, 150], "링키플러스": [408, 637, 790, 880, 131], "멘디": [346, 439, 563, 595, 63], "링키S": [98, 130, 182, 162, 25], "다나": [27, 29, 35, 37, 4]}}, "desk_2425": {"모션책상": {"로이": [123, 272, 270, 373, 59], "링키플러스": [66, 147, 185, 205, 30]}, "일반책상": {"로이": [1058, 1716, 2088, 2536, 320], "뉴트": [71, 664, 1210, 1656, 207], "링키플러스": [576, 1085, 1269, 1485, 145], "로이모노": [461, 446, 813, 1419, 62], "멘디": [594, 591, 851, 1038, 66], "링키S": [123, 131, 205, 325, 16], "다나": [34, 29, 44, 55, 6]}}, "desk_t_2526": {"뉴트": {"모션": 2779, "일반": 4179}, "로이": {"모션": 732, "일반": 4274}, "멘디": {"모션": 593, "일반": 2006}, "링키플러스": {"모션": 545, "일반": 2846}, "로이모노": {"모션": 0, "일반": 3116}, "링키S": {"모션": 0, "일반": 597}, "다나": {"모션": 0, "일반": 132}}, "desk_t_2425": {"로이": {"모션": 1097, "일반": 7718}, "링키플러스": {"모션": 633, "일반": 4560}, "뉴트": {"모션": 0, "일반": 3808}, "로이모노": {"모션": 0, "일반": 3201}, "멘디": {"모션": 0, "일반": 3140}, "링키S": {"모션": 0, "일반": 800}, "다나": {"모션": 0, "일반": 168}}, "cat_ratio_2526": {"키즈": [1348384321, 1523730608, 1672251630, 1509920079, 213430503], "스터디": [5491960980, 8257164451, 10952605601, 11049220805, 1780443986], "침실": [6785104635, 6981280529, 8156173233, 7337006559, 1092922779], "LDK": [2783567363, 2897233977, 3203682499, 3038894514, 339144422], "Pet": [130636840, 122021372, 138240234, 140978565, 15964752]}, "cat_ratio_2425": {"키즈": [1834855454, 2114600660, 2352593672, 2770688236, 187842743], "스터디": [5157736323, 8405504634, 11164187039, 13874755362, 1539309449], "침실": [6634540679, 6073030282, 7012349083, 7979626835, 666524089], "LDK": [3192475127, 3196849884, 3149511339, 3424267418, 362457400], "Pet": [127301131, 125147414, 112116211, 151581727, 9764535]}, "months": ["11월", "12월", "1월", "2월", "3월"]};
+
+function initStudent() {
+  // KPIs
+  const tyoy = ((SD.grand_total_2526-SD.grand_total_2425)/SD.grand_total_2425*100).toFixed(1);
+  document.getElementById('s-kpi-total').innerHTML = fA(SD.grand_total_2526)+'<span class="unit">억</span>';
+  setYoY('s-kpi-total-yoy', tyoy);
+  document.getElementById('s-kpi-newt').innerHTML = fA(SD.series_total_2526['뉴트'])+'<span class="unit">억</span>';
+  setYoY('s-kpi-newt-yoy', SD.series_yoy['뉴트']);
+  document.getElementById('s-kpi-roy').innerHTML = fA(SD.series_total_2526['로이'])+'<span class="unit">억</span>';
+  setYoY('s-kpi-roy-yoy', SD.series_yoy['로이']);
+  document.getElementById('s-kpi-share').innerHTML = SD.series_share_2526['뉴트']+'<span class="unit">%</span>';
+  const sd = (SD.series_share_2526['뉴트']-SD.series_share_2425['뉴트']).toFixed(1);
+  const se = document.getElementById('s-kpi-share-chg');
+  se.textContent = (sd>0?'+':'')+sd+'%p'; se.className='change '+(sd>=0?'up':'down');
+
+  function setYoY(id, val) {
+    const el = document.getElementById(id);
+    el.textContent = (val>0?'+':'')+val+'% YoY';
+    el.className = 'change '+(val>=0?'up':'down');
+  }
+
+  const sn4 = ['뉴트','로이','링키플러스','멘디'];
+
+  // 1. Trend
+  const ds1 = [];
+  sn4.forEach(s => {
+    ds1.push({ label:s+' (25-26)', data:SD.series_amt_2526[s], borderColor:SC[s], borderWidth:2.5, tension:.3, pointRadius:4, pointBackgroundColor:SC[s] });
+    ds1.push({ label:s+' (24-25)', data:SD.series_amt_2425[s], borderColor:SC[s], borderDash:[6,4], borderWidth:1.5, tension:.3, pointRadius:3, pointBackgroundColor:SC[s] });
+  });
+  chartInstances.s1 = new Chart(document.getElementById('s-chart1'), { type:'line', data:{ labels:SD.months, datasets:ds1 }, options:{ responsive:true, maintainAspectRatio:false, plugins:{ legend:{ position:'top', labels:{ padding:10, font:{size:10} } }, tooltip:{ backgroundColor:'#333', callbacks:{ label:i=>i.dataset.label+': '+fA(i.raw)+'억' } } }, scales:{ y:{ grid:{color:'#F0F0F0'}, ticks:{font:{family:'Montserrat'}, callback:v=>fA(v)+'억'} }, x:{ grid:{color:'#F0F0F0'} } } } });
+
+  // 2. Share
+  new Chart(document.getElementById('s-chart2'), { type:'bar', data:{ labels:sn4, datasets:[ { label:'25-26', data:sn4.map(s=>SD.series_share_2526[s]), backgroundColor:sn4.map(s=>SC[s]) }, { label:'24-25', data:sn4.map(s=>SD.series_share_2425[s]), backgroundColor:sn4.map(s=>SC[s]+'40') } ] }, options:{ responsive:true, maintainAspectRatio:false, plugins:{ tooltip:{backgroundColor:'#333', callbacks:{label:i=>i.dataset.label+': '+i.raw+'%'} } }, scales:{ y:{grid:{color:'#F0F0F0'}, ticks:{font:{family:'Montserrat'}, callback:v=>v+'%'} }, x:{grid:{display:false}} } } });
+
+  // 3. YoY
+  const yv = sn4.map(s=>SD.series_yoy[s]);
+  new Chart(document.getElementById('s-chart3'), { type:'bar', data:{ labels:sn4, datasets:[{ data:yv, backgroundColor:yv.map(v=>v>=0?RED:'#E0E0E0') }] }, options:{ responsive:true, maintainAspectRatio:false, plugins:{ legend:{display:false}, tooltip:{backgroundColor:'#333', callbacks:{label:i=>(i.raw>0?'+':'')+i.raw+'%'} } }, scales:{ y:{grid:{color:'#F0F0F0'}, ticks:{font:{family:'Montserrat'}, callback:v=>v+'%'} }, x:{grid:{display:false}} } } });
+
+  // 4. Category stack
+  const cats4 = ['책상 및 책상류','수납장','침대','패키지'];
+  const cc4 = {'책상 및 책상류':'#5B7B9A','수납장':'#7BA08C','침대':'#C07A5C','패키지':'#8B7BAA'};
+  new Chart(document.getElementById('s-chart4'), { type:'bar', data:{ labels:sn4, datasets:cats4.map(c=>({ label:c, data:sn4.map(s=>{ const d=SD.series_cat_2526[s][c]; return d?Math.round(d.reduce((a,b)=>a+b,0)/SD.series_total_2526[s]*100):0; }), backgroundColor:cc4[c] })) }, options:{ responsive:true, maintainAspectRatio:false, plugins:{ legend:{position:'top',labels:{padding:12,font:{size:10}}}, tooltip:{backgroundColor:'#333', callbacks:{label:i=>i.dataset.label+': '+i.raw+'%'} } }, scales:{ x:{stacked:true,grid:{display:false}}, y:{stacked:true,max:100,grid:{color:'#F0F0F0'}, ticks:{font:{family:'Montserrat'}, callback:v=>v+'%'} } } } });
+
+  // 5. Desk
+  renderSDesk('total');
+
+  // 6. Category ratio
+  const ic = ['스터디','침실','LDK','키즈','Pet'];
+  const icC = {'스터디':RED,'침실':'#5B7B9A','LDK':'#7BA08C','키즈':'#C4A76C','Pet':'#A0A0A0'};
+  const crd = ic.map(c => {
+    const t26=SD.cat_ratio_2526[c].reduce((a,b)=>a+b,0), t25=SD.cat_ratio_2425[c].reduce((a,b)=>a+b,0);
+    const g26=Object.values(SD.cat_ratio_2526).reduce((s,a)=>s+a.reduce((x,y)=>x+y,0),0);
+    const g25=Object.values(SD.cat_ratio_2425).reduce((s,a)=>s+a.reduce((x,y)=>x+y,0),0);
+    return { s26:Math.round(t26/g26*1000)/10, s25:Math.round(t25/g25*1000)/10 };
+  });
+  new Chart(document.getElementById('s-chart6'), { type:'bar', data:{ labels:ic, datasets:[ { label:'25-26', data:crd.map(d=>d.s26), backgroundColor:ic.map(c=>icC[c]) }, { label:'24-25', data:crd.map(d=>d.s25), backgroundColor:ic.map(c=>icC[c]+'40') } ] }, options:{ responsive:true, maintainAspectRatio:false, plugins:{ tooltip:{backgroundColor:'#333', callbacks:{label:i=>i.dataset.label+': '+i.raw+'%'} } }, scales:{ y:{grid:{color:'#F0F0F0'}, ticks:{font:{family:'Montserrat'}, callback:v=>v+'%'} }, x:{grid:{display:false}} } } });
+}
+
+let sDesk;
+function renderSDesk(mode) {
+  if (sDesk) sDesk.destroy();
+  if (mode==='total') {
+    const ds=Object.keys(SD.desk_t_2526).sort((a,b)=>(SD.desk_t_2526[b]['모션']+SD.desk_t_2526[b]['일반'])-(SD.desk_t_2526[a]['모션']+SD.desk_t_2526[a]['일반']));
+    const cur=ds.map(s=>(SD.desk_t_2526[s]['모션']||0)+(SD.desk_t_2526[s]['일반']||0));
+    const pre=ds.map(s=>SD.desk_t_2425[s]?(SD.desk_t_2425[s]['모션']||0)+(SD.desk_t_2425[s]['일반']||0):0);
+    sDesk=new Chart(document.getElementById('s-chart5'),{ type:'bar', data:{ labels:ds, datasets:[ {label:'25-26',data:cur,backgroundColor:ds.map(s=>SC[s]||'#999')}, {label:'24-25',data:pre,backgroundColor:ds.map(s=>(SC[s]||'#999')+'40')} ] }, options:{ responsive:true, maintainAspectRatio:false, plugins:{ tooltip:{backgroundColor:'#333'} }, scales:{ y:{grid:{color:'#F0F0F0'}, ticks:{font:{family:'Montserrat'}, callback:v=>v.toLocaleString()} }, x:{grid:{display:false}} } } });
+    document.getElementById('s-insight5').innerHTML='<strong>뉴트 모션책상 신규 진입</strong>. 뉴트 모션 '+(SD.desk_t_2526['뉴트']?.['모션']||0).toLocaleString()+'대 수주로 모션 1위.';
+  } else {
+    const as=[...new Set([...Object.keys(SD.desk_2526['모션책상']||{}),...Object.keys(SD.desk_2526['일반책상']||{})])];
+    const md=as.map(s=>{ const v=SD.desk_2526['모션책상']?.[s]; return v?v.reduce((a,b)=>a+b,0):0; });
+    const nd=as.map(s=>{ const v=SD.desk_2526['일반책상']?.[s]; return v?v.reduce((a,b)=>a+b,0):0; });
+    const ix=as.map((_,i)=>i).sort((a,b)=>(md[b]+nd[b])-(md[a]+nd[a]));
+    sDesk=new Chart(document.getElementById('s-chart5'),{ type:'bar', data:{ labels:ix.map(i=>as[i]), datasets:[ {label:'모션',data:ix.map(i=>md[i]),backgroundColor:RED}, {label:'일반',data:ix.map(i=>nd[i]),backgroundColor:'#5B7B9A'} ] }, options:{ responsive:true, maintainAspectRatio:false, plugins:{ legend:{position:'top'}, tooltip:{backgroundColor:'#333'} }, scales:{ x:{stacked:true,grid:{display:false}}, y:{stacked:true,grid:{color:'#F0F0F0'}, ticks:{font:{family:'Montserrat'}, callback:v=>v.toLocaleString()} } } } });
+    document.getElementById('s-insight5').innerHTML='<strong>모션책상 비중:</strong> 뉴트가 모션 시장 개척. 전체 모션 중 뉴트 비중 최대.';
+  }
+}
+function toggleSDesk(btn,mode) { btn.closest('.tab-bar').querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active')); btn.classList.add('active'); renderSDesk(mode); }
+
+initStudent();
+
+// ====== NEWT PAGE ======
+const ND = {"view1": [{"code": "IFW0038A", "name": "뉴트 2단 서랍옷장 800폭 (H2055)", "category": "옷장", "total_qty": 794, "total_amt": 298069193}, {"code": "ICB0005A", "name": "뉴트 책장 6단 600폭", "category": "책장", "total_qty": 673, "total_amt": 133603822}, {"code": "ICD0025A", "name": "뉴트 책장도어 2단 600폭", "category": "책장", "total_qty": 673, "total_amt": 27707202}, {"code": "IDL0011A", "name": "뉴트 6단 다리형책상 세트 1400폭 (도어포함)", "category": "책상", "total_qty": 584, "total_amt": 391459179}, {"code": "IDM0016A", "name": "뉴트 1400폭 6단 수납선반형 모션데스크 세트 (도어포함)", "category": "책상", "total_qty": 581, "total_amt": 841569081}, {"code": "IVP0011A", "name": "뉴트 파티션 책장 1400폭 (D210)", "category": "파티션책장", "total_qty": 525, "total_amt": 90376001}, {"code": "IBS0021A", "name": "뉴트 조명형 수납침대 (SS,세로수납형,헤드쿠션포함)", "category": "침대", "total_qty": 518, "total_amt": 430100430}, {"code": "ICB0023A", "name": "뉴트 6단 ㄱ형 사이드장(D290)", "category": "책장", "total_qty": 514, "total_amt": 141362994}, {"code": "ICB0021A", "name": "뉴트 6단 ㄱ형 사이드장", "category": "책장", "total_qty": 504, "total_amt": 156363160}, {"code": "IFI0012A", "name": "뉴트 사이드 화장대장 600폭", "category": "옷장", "total_qty": 449, "total_amt": 166924710}, {"code": "ICD0024A", "name": "뉴트 책장도어 2단 400폭", "category": "책장", "total_qty": 403, "total_amt": 14702604}, {"code": "ICB0016A", "name": "뉴트 포인트장 6단 290폭 (D290)", "category": "책장", "total_qty": 393, "total_amt": 71139837}, {"code": "IDL0010A", "name": "뉴트 6단 다리형책상 세트 1200폭 (도어포함)", "category": "책상", "total_qty": 389, "total_amt": 230397122}, {"code": "IFI0011A", "name": "뉴트 사이드 행거장 600폭", "category": "옷장", "total_qty": 370, "total_amt": 66825831}, {"code": "ICB0010A", "name": "뉴트 책장 6단 600폭 (하부깊은서랍형)", "category": "책장", "total_qty": 348, "total_amt": 121439370}, {"code": "IBS0024A", "name": "뉴트 조명형 수납침대장세트 (SS,세로수납형,헤드쿠션포함)", "category": "침대", "total_qty": 332, "total_amt": 352652186}, {"code": "ICB0006A", "name": "뉴트 책장 6단 800폭", "category": "책장", "total_qty": 328, "total_amt": 81668181}, {"code": "IDL0004A", "name": "뉴트 다리형책상 1200폭 (스크린형,거치형 레이어드 패널포함)", "category": "책상", "total_qty": 311, "total_amt": 107251140}, {"code": "ICB0004A", "name": "뉴트 책장 6단 400폭", "category": "책장", "total_qty": 298, "total_amt": 48364942}, {"code": "IDM0012A", "name": "뉴트 1400폭 홈오피스 모션데스크", "category": "책상", "total_qty": 292, "total_amt": 255157343}, {"code": "ICD0026A", "name": "뉴트 책장도어 2단 800폭", "category": "책장", "total_qty": 274, "total_amt": 19384696}, {"code": "ICB0002A", "name": "뉴트 책장 5단 600폭", "category": "책장", "total_qty": 262, "total_amt": 44855404}, {"code": "IDL0015A", "name": "뉴트 6단 다리형책상 ㄱ형 세트 1400폭 (도어포함)", "category": "책상", "total_qty": 255, "total_amt": 247504963}, {"code": "IFI0015A", "name": "뉴트 400폭 좁은장", "category": "옷장", "total_qty": 236, "total_amt": 61771916}, {"code": "ICB0020A", "name": "뉴트 5단 ㄱ형 사이드장", "category": "책장", "total_qty": 232, "total_amt": 64122142}], "view2": [{"code": "IFW0038A", "name": "뉴트 2단 서랍옷장 800폭 (H2055)", "peak": 794, "off": 568, "ratio": 1.4, "category": "옷장"}, {"code": "ICB0005A", "name": "뉴트 책장 6단 600폭", "peak": 673, "off": 597, "ratio": 1.1, "category": "책장"}, {"code": "ICD0025A", "name": "뉴트 책장도어 2단 600폭", "peak": 673, "off": 558, "ratio": 1.2, "category": "책장"}, {"code": "IDL0011A", "name": "뉴트 6단 다리형책상 세트 1400폭 (도어포함)", "peak": 584, "off": 475, "ratio": 1.2, "category": "책상"}, {"code": "IDM0016A", "name": "뉴트 1400폭 6단 수납선반형 모션데스크 세트 (도어포함)", "peak": 581, "off": 0, "ratio": 999, "category": "책상"}, {"code": "IVP0011A", "name": "뉴트 파티션 책장 1400폭 (D210)", "peak": 525, "off": 689, "ratio": 0.8, "category": "파티션책장"}, {"code": "IBS0021A", "name": "뉴트 조명형 수납침대 (SS,세로수납형,헤드쿠션포함)", "peak": 518, "off": 503, "ratio": 1.0, "category": "침대"}, {"code": "ICB0023A", "name": "뉴트 6단 ㄱ형 사이드장(D290)", "peak": 514, "off": 0, "ratio": 999, "category": "책장"}, {"code": "ICB0021A", "name": "뉴트 6단 ㄱ형 사이드장", "peak": 504, "off": 0, "ratio": 999, "category": "책장"}, {"code": "IFI0012A", "name": "뉴트 사이드 화장대장 600폭", "peak": 449, "off": 299, "ratio": 1.5, "category": "옷장"}, {"code": "ICD0024A", "name": "뉴트 책장도어 2단 400폭", "peak": 403, "off": 307, "ratio": 1.3, "category": "책장"}, {"code": "ICB0016A", "name": "뉴트 포인트장 6단 290폭 (D290)", "peak": 393, "off": 328, "ratio": 1.2, "category": "책장"}, {"code": "IDL0010A", "name": "뉴트 6단 다리형책상 세트 1200폭 (도어포함)", "peak": 389, "off": 326, "ratio": 1.2, "category": "책상"}, {"code": "IFI0011A", "name": "뉴트 사이드 행거장 600폭", "peak": 370, "off": 233, "ratio": 1.6, "category": "옷장"}, {"code": "ICB0010A", "name": "뉴트 책장 6단 600폭 (하부깊은서랍형)", "peak": 348, "off": 230, "ratio": 1.5, "category": "책장"}, {"code": "IBS0024A", "name": "뉴트 조명형 수납침대장세트 (SS,세로수납형,헤드쿠션포함)", "peak": 332, "off": 234, "ratio": 1.4, "category": "침대"}, {"code": "ICB0006A", "name": "뉴트 책장 6단 800폭", "peak": 328, "off": 336, "ratio": 1.0, "category": "책장"}, {"code": "IDL0004A", "name": "뉴트 다리형책상 1200폭 (스크린형,거치형 레이어드 패널포함)", "peak": 311, "off": 329, "ratio": 0.9, "category": "책상"}, {"code": "ICB0004A", "name": "뉴트 책장 6단 400폭", "peak": 298, "off": 206, "ratio": 1.4, "category": "책장"}, {"code": "IDM0012A", "name": "뉴트 1400폭 홈오피스 모션데스크", "peak": 292, "off": 0, "ratio": 999, "category": "책상"}], "view3": [{"a": "뉴트 사이드 행거장 600폭", "b": "뉴트 2단 서랍옷장 800폭 (H2055)", "ca": "IFI0011A", "cb": "IFW0038A", "n": 11, "s": 2.25, "cA": 55.0, "cB": 26.8, "nA": 20, "nB": 41}, {"a": "뉴트 책장 6단 600폭 (하부깊은서랍형)", "b": "뉴트 6단 다리형책상 세트 1400폭 (도어포함)", "ca": "ICB0010A", "cb": "IDL0011A", "n": 8, "s": 1.64, "cA": 34.8, "cB": 15.7, "nA": 23, "nB": 51}, {"a": "뉴트 사이드 화장대장 600폭", "b": "뉴트 2단 서랍옷장 800폭 (H2055)", "ca": "IFI0012A", "cb": "IFW0038A", "n": 8, "s": 1.64, "cA": 30.8, "cB": 19.5, "nA": 26, "nB": 41}, {"a": "뉴트 책장 6단 400폭", "b": "뉴트 6단 다리형책상 세트 1400폭 (도어포함)", "ca": "ICB0004A", "cb": "IDL0011A", "n": 8, "s": 1.64, "cA": 40.0, "cB": 15.7, "nA": 20, "nB": 51}, {"a": "뉴트 400폭 좁은장", "b": "뉴트 2단 서랍옷장 800폭 (H2055)", "ca": "IFI0015A", "cb": "IFW0038A", "n": 7, "s": 1.43, "cA": 70.0, "cB": 17.1, "nA": 10, "nB": 41}, {"a": "뉴트 책장 6단 600폭 (하부깊은서랍형)", "b": "뉴트 1400폭 6단 수납선반형 모션데스크 세트 (도어포함)", "ca": "ICB0010A", "cb": "IDM0016A", "n": 7, "s": 1.43, "cA": 30.4, "cB": 17.9, "nA": 23, "nB": 39}, {"a": "뉴트 6단 ㄱ형 사이드장", "b": "뉴트 1400폭 6단 수납선반형 모션데스크 세트 (도어포함)", "ca": "ICB0021A", "cb": "IDM0016A", "n": 7, "s": 1.43, "cA": 35.0, "cB": 17.9, "nA": 20, "nB": 39}, {"a": "뉴트 6단 다리형책상 세트 1400폭 (도어포함)", "b": "뉴트 사이드 화장대장 600폭", "ca": "IDL0011A", "cb": "IFI0012A", "n": 7, "s": 1.43, "cA": 13.7, "cB": 26.9, "nA": 51, "nB": 26}], "view3_desk": [{"a": "뉴트 책장 6단 600폭 (하부깊은서랍형)", "b": "뉴트 6단 다리형책상 세트 1400폭 (도어포함)", "ca": "ICB0010A", "cb": "IDL0011A", "n": 8, "s": 1.64, "cA": 34.8, "cB": 15.7, "nA": 23, "nB": 51}, {"a": "뉴트 책장 6단 400폭", "b": "뉴트 6단 다리형책상 세트 1400폭 (도어포함)", "ca": "ICB0004A", "cb": "IDL0011A", "n": 8, "s": 1.64, "cA": 40.0, "cB": 15.7, "nA": 20, "nB": 51}, {"a": "뉴트 책장 6단 600폭 (하부깊은서랍형)", "b": "뉴트 1400폭 6단 수납선반형 모션데스크 세트 (도어포함)", "ca": "ICB0010A", "cb": "IDM0016A", "n": 7, "s": 1.43, "cA": 30.4, "cB": 17.9, "nA": 23, "nB": 39}, {"a": "뉴트 6단 ㄱ형 사이드장", "b": "뉴트 1400폭 6단 수납선반형 모션데스크 세트 (도어포함)", "ca": "ICB0021A", "cb": "IDM0016A", "n": 7, "s": 1.43, "cA": 35.0, "cB": 17.9, "nA": 20, "nB": 39}, {"a": "뉴트 6단 다리형책상 세트 1400폭 (도어포함)", "b": "뉴트 사이드 화장대장 600폭", "ca": "IDL0011A", "cb": "IFI0012A", "n": 7, "s": 1.43, "cA": 13.7, "cB": 26.9, "nA": 51, "nB": 26}], "view4_qty": {"1개": 181, "2개": 120, "3~4개": 112, "5~6개": 48, "7~9개": 20, "10개+": 1}, "view4_unique": {"1종류": 184, "2종류": 127, "3~4종류": 114, "5~6종류": 36, "7종류+": 21}, "view4_amt": {"~50만": 74, "50~100만": 128, "100~150만": 104, "150~200만": 57, "200~300만": 84, "300~500만": 34, "500만+": 1}, "total_customers": 482, "avg_qty": 2.5, "avg_unique": 2.5, "avg_amt": 1390373, "cat_monthly": {"책상": {"2025-01": 1230, "2025-02": 1690, "2025-04": 530, "2025-05": 604, "2025-06": 638, "2025-07": 763, "2025-08": 791, "2025-09": 563, "2025-10": 565, "2025-11": 925, "2025-12": 1482, "2026-01": 2071, "2026-02": 2115}, "침대": {"2025-01": 426, "2025-02": 661, "2025-04": 197, "2025-05": 219, "2025-06": 219, "2025-07": 242, "2025-08": 270, "2025-09": 177, "2025-10": 208, "2025-11": 308, "2025-12": 474, "2026-01": 727, "2026-02": 678}, "책장": {"2025-01": 1044, "2025-02": 1361, "2025-04": 526, "2025-05": 512, "2025-06": 633, "2025-07": 724, "2025-08": 794, "2025-09": 527, "2025-10": 472, "2025-11": 894, "2025-12": 1483, "2026-01": 2040, "2026-02": 2163}, "옷장": {"2025-01": 374, "2025-02": 507, "2025-04": 198, "2025-05": 220, "2025-06": 178, "2025-07": 209, "2025-08": 222, "2025-09": 169, "2025-10": 174, "2025-11": 320, "2025-12": 606, "2026-01": 797, "2026-02": 740}, "파티션책장": {"2025-01": 206, "2025-02": 253, "2025-04": 87, "2025-05": 84, "2025-06": 87, "2025-07": 122, "2025-08": 126, "2025-09": 87, "2025-10": 96, "2025-11": 127, "2025-12": 145, "2026-01": 249, "2026-02": 230}, "수납": {"2025-01": 103, "2025-02": 137, "2025-04": 64, "2025-05": 88, "2025-06": 64, "2025-07": 87, "2025-08": 92, "2025-09": 65, "2025-10": 81, "2025-11": 94, "2025-12": 126, "2026-01": 159, "2026-02": 170}, "악세서리": {"2025-01": 233, "2025-02": 292, "2025-04": 108, "2025-05": 100, "2025-06": 103, "2025-07": 127, "2025-08": 162, "2025-09": 85, "2025-10": 110, "2025-11": 138, "2025-12": 221, "2026-01": 320, "2026-02": 257}}, "all_months": ["2025-01", "2025-02", "2025-04", "2025-05", "2025-06", "2025-07", "2025-08", "2025-09", "2025-10", "2025-11", "2025-12", "2026-01", "2026-02"]};
+
+function initNewt() {
+  document.getElementById('n-kpi-items').innerHTML = ND.view1.length+'<span class="unit"></span>';
+  document.getElementById('n-kpi-cust').innerHTML = ND.total_customers.toLocaleString()+'<span class="unit">명</span>';
+  document.getElementById('n-kpi-qty').innerHTML = ND.avg_qty+'<span class="unit">개</span>';
+  document.getElementById('n-kpi-unique').innerHTML = ND.avg_unique+'<span class="unit">종</span>';
+  document.getElementById('n-kpi-amt').innerHTML = Math.round(ND.avg_amt/10000).toLocaleString()+'<span class="unit">만원</span>';
+
+  const cats=[...new Set(ND.view1.map(d=>d.category))];
+  document.getElementById('n-legend1').innerHTML=cats.map(c=>'<div class="legend-item"><div class="legend-dot" style="background:'+(CC[c]||'#ccc')+'"></div>'+c+'</div>').join('');
+
+  renderN1('qty');
+
+  // Trend
+  const ml=ND.all_months.map(m=>{const p=m.split('-');return p[0].slice(2)+'.'+p[1];});
+  const pi=new Set([0,1,9,10,11,12]);
+  const mc=['책상','책장','파티션책장','옷장','침대','수납'];
+  const tds=[];
+  mc.forEach(c=>{ if(!ND.cat_monthly[c])return; tds.push({ label:c, data:ND.all_months.map(m=>ND.cat_monthly[c][m]||0), borderColor:CC[c], fill:false, tension:.3, pointRadius:3, borderWidth:2, pointBackgroundColor:CC[c] }); });
+  chartInstances.n2=new Chart(document.getElementById('n-chart2'),{ type:'line', data:{labels:ml,datasets:tds}, options:{ responsive:true, maintainAspectRatio:false, plugins:{ legend:{position:'top',labels:{padding:12,font:{size:10}}}, tooltip:{backgroundColor:'#333', callbacks:{label:i=>i.dataset.label+': '+i.raw.toLocaleString()+'개'} } }, scales:{ x:{grid:{color:ctx=>pi.has(ctx.index)?'rgba(200,10,30,0.08)':'#F0F0F0', lineWidth:ctx=>pi.has(ctx.index)?25:1}, ticks:{font:{family:'Montserrat',size:10}} }, y:{grid:{color:'#F0F0F0'}, ticks:{font:{family:'Montserrat'}, callback:v=>v.toLocaleString()} } } } });
+
+  // 2b
+  const v2l=ND.view2.map(d=>{let n=d.name;return n.length>24?n.substring(0,24)+'...':n;});
+  new Chart(document.getElementById('n-chart2b'),{ type:'bar', data:{ labels:v2l, datasets:[ {label:'성수기 (25.11~26.02)',data:ND.view2.map(d=>d.peak),backgroundColor:RED}, {label:'비수기 (3~10월)',data:ND.view2.map(d=>d.off),backgroundColor:'#E0E0E0'} ] }, options:{ indexAxis:'y', responsive:true, maintainAspectRatio:false, plugins:{ legend:{position:'top',labels:{padding:12,font:{size:10}}}, tooltip:{backgroundColor:'#333', callbacks:{title:i=>ND.view2[i[0].dataIndex].name, afterBody:i=>{const r=ND.view2[i[0].dataIndex].ratio;return r>=999?'성수기 전용':'집중비: '+r+'배';} } } }, scales:{ x:{grid:{color:'#F0F0F0'}, ticks:{font:{family:'Montserrat'}, callback:v=>v.toLocaleString()} }, y:{grid:{display:false}, ticks:{font:{size:10}} } } } });
+  const ni=ND.view2.filter(d=>d.ratio>50);
+  const si=ND.view2.filter(d=>d.off>0&&d.ratio<3);
+  let v2i='';
+  if(ni.length>0) v2i+='<strong>성수기 전용:</strong> '+ni.map(d=>d.name.substring(0,22)).join(', ')+'<br>';
+  if(si.length>0) v2i+='<strong>연중 안정:</strong> '+si.map(d=>d.name.substring(0,22)).join(', ');
+  document.getElementById('n-insight2b').innerHTML=v2i||'대부분 성수기 집중.';
+
+  // Copurchase
+  function renderPairs(cid, pairs, max) {
+    let h='';
+    pairs.slice(0,max).forEach((p,i)=>{
+      const mc2=Math.max(p.cA,p.cB), bw=Math.max(Math.round(mc2*0.7),3);
+      h+='<div class="pair-row"><div class="pair-num">'+(i+1)+'</div><div class="pair-items"><b>'+sn(p.a)+'</b><br>+ <b>'+sn(p.b)+'</b></div><div class="pair-stat">'+p.n+'<span class="unit">명</span></div><div class="pair-conf"><div class="conf-bar" style="width:'+bw+'px"></div><span class="conf-text">'+mc2+'%</span></div></div>';
+    });
+    document.getElementById(cid).innerHTML=h;
+  }
+  renderPairs('n-copurchase', ND.view3, 15);
+  renderPairs('n-copurchase-desk', ND.view3_desk, 15);
+
+  if(ND.view3.length>0){ const tp=ND.view3[0]; document.getElementById('n-insight3').innerHTML='<strong>Top:</strong> '+sn(tp.a)+' + '+sn(tp.b)+' ('+tp.n+'명, '+Math.max(tp.cA,tp.cB)+'%)'; }
+  if(ND.view3_desk.length>0){ const tp=ND.view3_desk[0]; document.getElementById('n-insight3d').innerHTML='<strong>Top 책상 조합:</strong> '+sn(tp.a)+' + '+sn(tp.b)+' ('+tp.n+'명, '+Math.max(tp.cA,tp.cB)+'%)'; }
+
+  renderN4('qty');
+}
+
+let nChart1;
+function renderN1(mode) {
+  if(nChart1)nChart1.destroy();
+  const sorted=[...ND.view1].sort((a,b)=>mode==='qty'?a.total_qty-b.total_qty:a.total_amt-b.total_amt);
+  const labels=sorted.map(d=>{let n=d.name;return n.length>28?n.substring(0,28)+'...':n;});
+  const values=sorted.map(d=>mode==='qty'?d.total_qty:d.total_amt);
+  nChart1=new Chart(document.getElementById('n-chart1'),{ type:'bar', data:{ labels, datasets:[{data:values, backgroundColor:sorted.map(d=>CC[d.category]||'#ccc'), borderRadius:0}] }, options:{ indexAxis:'y', responsive:true, maintainAspectRatio:false, plugins:{ legend:{display:false}, tooltip:{backgroundColor:'#333', titleFont:{weight:'600'}, callbacks:{ title:i=>sorted[i[0].dataIndex].name, label:i=>{const d=sorted[i.dataIndex];return mode==='qty'?'수주량: '+d.total_qty.toLocaleString()+'개':'수주금액: '+Math.round(d.total_amt/10000).toLocaleString()+'만원';}, afterLabel:i=>sorted[i.dataIndex].category+' | '+sorted[i.dataIndex].code } } }, scales:{ x:{grid:{color:'#F0F0F0'}, ticks:{font:{family:'Montserrat'}, callback:v=>mode==='qty'?v.toLocaleString():Math.round(v/1e8)+'억'} }, y:{grid:{display:false}, ticks:{font:{size:10}} } } } });
+  chartInstances.n1=nChart1;
+}
+function toggleN1(btn,mode) { btn.closest('.tab-bar').querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active')); btn.classList.add('active'); renderN1(mode); }
+
+let nChart4;
+function renderN4(mode) {
+  if(nChart4)nChart4.destroy();
+  const bins=mode==='qty'?ND.view4_qty:(mode==='unique'?ND.view4_unique:ND.view4_amt);
+  const labels=Object.keys(bins), values=Object.values(bins);
+  const total=values.reduce((a,b)=>a+b,0);
+  const bc=values.map((_,i)=>{const r=i/(values.length-1);return 'rgb('+Math.round(200-r*80)+','+Math.round(10+r*150)+','+Math.round(30+r*130)+')';});
+  nChart4=new Chart(document.getElementById('n-chart4'),{ type:'bar', data:{ labels, datasets:[{data:values,backgroundColor:bc}] }, options:{ responsive:true, maintainAspectRatio:false, plugins:{ legend:{display:false}, tooltip:{backgroundColor:'#333', callbacks:{afterLabel:i=>Math.round(i.raw/total*100)+'%'} } }, scales:{ x:{grid:{display:false}}, y:{grid:{color:'#F0F0F0'}, ticks:{font:{family:'Montserrat'}, callback:v=>v+'명'} } } } });
+  const mr=Math.round((1-values[0]/total)*100);
+  let insight='';
+  if(mode==='qty') insight='<strong>'+mr+'%</strong> 2개 이상 구매. 평균 <strong>'+ND.avg_qty+'개</strong>.';
+  else if(mode==='unique') insight='<strong>'+mr+'%</strong> 2종류 이상 구매. 평균 <strong>'+ND.avg_unique+'종</strong>.';
+  else insight='평균 객단가 <strong>'+Math.round(ND.avg_amt/10000).toLocaleString()+'만원</strong>. 100만원 이상 고객 비율 <strong>'+Math.round((total-values[0]-values[1])/total*100)+'%</strong>.';
+  document.getElementById('n-insight4').innerHTML=insight;
+}
+function toggleN4(btn,mode) { btn.closest('.tab-bar').querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active')); btn.classList.add('active'); renderN4(mode); }
+
+</script>
+</body>
+</html>

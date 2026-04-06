@@ -1,0 +1,497 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>NEWT Series - Peak Season Core Product Analysis</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700&family=Noto+Sans+KR:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<style>
+:root {
+  --brand-red: #c80a1e;
+  --brand-red-light: rgba(200, 10, 30, 0.08);
+  --bg-main: #FFFFFF;
+  --bg-alt: #F8F8F8;
+  --text-primary: #333333;
+  --text-secondary: #999999;
+  --border: #E0E0E0;
+  --border-light: #F0F0F0;
+}
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body {
+  font-family: 'Noto Sans KR', -apple-system, BlinkMacSystemFont, sans-serif;
+  background: var(--bg-alt);
+  color: var(--text-primary);
+  -webkit-font-smoothing: antialiased;
+  line-height: 1.6;
+  letter-spacing: -0.2px;
+}
+.header {
+  background: var(--bg-main);
+  border-bottom: 1px solid var(--border);
+  padding: 28px 40px 24px;
+}
+.header-inner { max-width: 1200px; margin: 0 auto; }
+.header-brand {
+  font-family: 'Montserrat', sans-serif;
+  font-weight: 700; font-size: 14px;
+  color: var(--brand-red);
+  letter-spacing: 2px; text-transform: lowercase;
+  margin-bottom: 8px;
+}
+.header h1 {
+  font-family: 'Noto Sans KR', sans-serif;
+  font-size: 24px; font-weight: 600;
+  color: var(--text-primary); margin-bottom: 4px;
+}
+.header .subtitle { font-size: 13px; color: var(--text-secondary); }
+.kpi-bar {
+  max-width: 1200px; margin: 24px auto 0; padding: 0 40px;
+  display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px;
+}
+.kpi {
+  background: var(--bg-main); border: 1px solid var(--border);
+  padding: 20px 24px; text-align: center;
+}
+.kpi .value {
+  font-family: 'Montserrat', sans-serif;
+  font-size: 32px; font-weight: 700;
+  color: var(--text-primary); line-height: 1.2;
+}
+.kpi .value .unit {
+  font-family: 'Noto Sans KR', sans-serif;
+  font-size: 14px; font-weight: 400;
+  color: var(--text-secondary); margin-left: 2px;
+}
+.kpi .label { font-size: 12px; color: var(--text-secondary); margin-top: 6px; }
+.dashboard {
+  max-width: 1200px; margin: 24px auto; padding: 0 40px;
+  display: grid; grid-template-columns: 1fr 1fr; gap: 20px;
+}
+.card {
+  background: var(--bg-main); border: 1px solid var(--border); padding: 24px;
+}
+.card.full { grid-column: 1 / -1; }
+.card h2 { font-size: 15px; font-weight: 600; color: var(--text-primary); margin-bottom: 2px; }
+.card .card-sub { font-size: 12px; color: var(--text-secondary); margin-bottom: 20px; }
+.chart-container { position: relative; height: 400px; }
+.chart-container.tall { height: 520px; }
+.tab-bar { display: flex; gap: 0; margin-bottom: 20px; border-bottom: 1px solid var(--border); }
+.tab-btn {
+  padding: 8px 16px; border: none; background: transparent; cursor: pointer;
+  font-family: 'Noto Sans KR', sans-serif; font-size: 13px; font-weight: 400;
+  color: var(--text-secondary); transition: color 0.2s;
+  border-bottom: 2px solid transparent; margin-bottom: -1px;
+}
+.tab-btn:hover { color: var(--text-primary); }
+.tab-btn.active { color: var(--brand-red); font-weight: 500; border-bottom-color: var(--brand-red); }
+.insight {
+  background: var(--brand-red-light);
+  border-left: 3px solid var(--brand-red);
+  padding: 14px 18px; margin-top: 16px;
+  font-size: 13px; line-height: 1.7;
+}
+.insight strong { color: var(--brand-red); }
+.pair-row {
+  display: flex; align-items: center;
+  padding: 10px 0; border-bottom: 1px solid var(--border-light); gap: 10px;
+}
+.pair-row:last-child { border-bottom: none; }
+.pair-num {
+  width: 22px; font-family: 'Montserrat', sans-serif;
+  font-size: 12px; font-weight: 600;
+  color: var(--text-secondary); text-align: center; flex-shrink: 0;
+}
+.pair-items { flex: 1; font-size: 13px; line-height: 1.5; }
+.pair-items b { font-weight: 500; }
+.pair-stat {
+  width: 50px; text-align: right;
+  font-family: 'Montserrat', sans-serif;
+  font-size: 13px; font-weight: 600;
+  color: var(--text-primary); flex-shrink: 0;
+}
+.pair-stat .unit { font-size: 11px; font-weight: 400; color: var(--text-secondary); }
+.pair-conf {
+  width: 100px; flex-shrink: 0;
+  display: flex; align-items: center; gap: 6px;
+}
+.conf-bar {
+  display: inline-block; height: 12px;
+  background: var(--brand-red); opacity: 0.7; min-width: 3px;
+}
+.conf-text {
+  font-family: 'Montserrat', sans-serif;
+  font-size: 11px; color: var(--text-secondary);
+}
+.footer {
+  max-width: 1200px; margin: 0 auto; padding: 24px 40px;
+  text-align: center; font-size: 12px; color: var(--text-secondary);
+  border-top: 1px solid var(--border);
+}
+.footer .brand {
+  font-family: 'Montserrat', sans-serif;
+  font-weight: 600; color: var(--brand-red); letter-spacing: 1px;
+}
+.legend-bar { display: flex; gap: 16px; flex-wrap: wrap; margin-bottom: 16px; }
+.legend-item { display: flex; align-items: center; gap: 6px; font-size: 12px; color: var(--text-secondary); }
+.legend-dot { width: 10px; height: 10px; flex-shrink: 0; }
+@media (max-width: 900px) {
+  .dashboard { grid-template-columns: 1fr; padding: 0 16px; }
+  .kpi-bar { grid-template-columns: repeat(2, 1fr); padding: 0 16px; }
+  .header { padding: 20px 16px; }
+  .footer { padding: 20px 16px; }
+}
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="header-inner">
+    <div class="header-brand">iloom</div>
+    <h1>NEWT 시리즈 — 성수기 핵심품목 분석</h1>
+    <div class="subtitle">성수기 분석 기간 2025.11 ~ 2026.02 | 고문정팀 리서치</div>
+  </div>
+</div>
+
+<div class="kpi-bar">
+  <div class="kpi">
+    <div class="value" id="kpi-items">-</div>
+    <div class="label">분석 품목 수</div>
+  </div>
+  <div class="kpi">
+    <div class="value" id="kpi-customers">-</div>
+    <div class="label">분석 고객 수 (2/27~3/2)</div>
+  </div>
+  <div class="kpi">
+    <div class="value" id="kpi-avg-qty">-</div>
+    <div class="label">고객당 평균 구매수량</div>
+  </div>
+  <div class="kpi">
+    <div class="value" id="kpi-avg-unique">-</div>
+    <div class="label">고객당 평균 품목종류</div>
+  </div>
+</div>
+
+<div class="dashboard">
+
+  <div class="card full" id="card-view1">
+    <h2>1. NEWT 품목별 판매 비중 Top 25</h2>
+    <div class="card-sub">2025.11 ~ 2026.02 성수기 수주 기준 | 카테고리: 책상, 책장, 파티션책장, 옷장, 침대, 수납</div>
+    <div class="tab-bar">
+      <button class="tab-btn active" onclick="toggleView1(this, 'qty')">수량 기준</button>
+      <button class="tab-btn" onclick="toggleView1(this, 'amt')">금액 기준</button>
+    </div>
+    <div id="legend-view1" class="legend-bar"></div>
+    <div class="chart-container tall">
+      <canvas id="chart-view1"></canvas>
+    </div>
+  </div>
+
+  <div class="card full">
+    <h2>2. 카테고리별 월별 수주량 추이</h2>
+    <div class="card-sub">성수기(25.11~26.02) 구간 하이라이트 | 월별 트렌드는 전체 기간 표시</div>
+    <div class="chart-container">
+      <canvas id="chart-trend"></canvas>
+    </div>
+  </div>
+
+  <div class="card full">
+    <h2>2-1. 품목별 성수기 집중도</h2>
+    <div class="card-sub">성수기 수주량 vs 비수기 수주량 — 성수기 비율순 정렬</div>
+    <div class="chart-container tall">
+      <canvas id="chart-view2"></canvas>
+    </div>
+    <div class="insight" id="insight-view2"></div>
+  </div>
+
+  <div class="card">
+    <h2>3. 동시구매 조합 — 전체 Top 15</h2>
+    <div class="card-sub">같은 고객이 함께 구매한 품목 조합 (2/27~3/2 데이터)</div>
+    <div id="copurchase-list" style="max-height:520px;overflow-y:auto;"></div>
+    <div class="insight" id="insight-view3"></div>
+  </div>
+
+  <div class="card">
+    <h2>3-1. 동시구매 조합 — 책상 포함</h2>
+    <div class="card-sub">책상(일반/모션) 품목이 포함된 조합만 필터링</div>
+    <div id="copurchase-desk-list" style="max-height:520px;overflow-y:auto;"></div>
+    <div class="insight" id="insight-view3-desk"></div>
+  </div>
+
+  <div class="card">
+    <h2>4. 고객 구매 패턴 분포</h2>
+    <div class="card-sub">고객당 구매 수량 / 품목 종류 분포 (2/27~3/2)</div>
+    <div class="tab-bar">
+      <button class="tab-btn active" onclick="toggleView4(this, 'qty')">구매 수량별</button>
+      <button class="tab-btn" onclick="toggleView4(this, 'unique')">품목 종류별</button>
+    </div>
+    <div class="chart-container">
+      <canvas id="chart-view4"></canvas>
+    </div>
+    <div class="insight" id="insight-view4"></div>
+  </div>
+
+</div>
+
+<div class="footer">
+  <span class="brand">iloom</span> 고문정팀 | Generated 2026-03-12
+</div>
+
+<script>
+const DATA = {"view1": [{"code": "IFW0038A", "name": "뉴트 2단 서랍옷장 800폭 (H2055)", "category": "옷장", "total_qty": 794, "total_amt": 298069193}, {"code": "ICB0005A", "name": "뉴트 책장 6단 600폭", "category": "책장", "total_qty": 673, "total_amt": 133603822}, {"code": "ICD0025A", "name": "뉴트 책장도어 2단 600폭", "category": "책장", "total_qty": 673, "total_amt": 27707202}, {"code": "IDL0011A", "name": "뉴트 6단 다리형책상 세트 1400폭 (도어포함)", "category": "책상", "total_qty": 584, "total_amt": 391459179}, {"code": "IDM0016A", "name": "뉴트 1400폭 6단 수납선반형 모션데스크 세트 (도어포함)", "category": "책상", "total_qty": 581, "total_amt": 841569081}, {"code": "IVP0011A", "name": "뉴트 파티션 책장 1400폭 (D210)", "category": "파티션책장", "total_qty": 525, "total_amt": 90376001}, {"code": "IBS0021A", "name": "뉴트 조명형 수납침대 (SS,세로수납형,헤드쿠션포함)", "category": "침대", "total_qty": 518, "total_amt": 430100430}, {"code": "ICB0023A", "name": "뉴트 6단 ㄱ형 사이드장(D290)", "category": "책장", "total_qty": 514, "total_amt": 141362994}, {"code": "ICB0021A", "name": "뉴트 6단 ㄱ형 사이드장", "category": "책장", "total_qty": 504, "total_amt": 156363160}, {"code": "IFI0012A", "name": "뉴트 사이드 화장대장 600폭", "category": "옷장", "total_qty": 449, "total_amt": 166924710}, {"code": "ICD0024A", "name": "뉴트 책장도어 2단 400폭", "category": "책장", "total_qty": 403, "total_amt": 14702604}, {"code": "ICB0016A", "name": "뉴트 포인트장 6단 290폭 (D290)", "category": "책장", "total_qty": 393, "total_amt": 71139837}, {"code": "IDL0010A", "name": "뉴트 6단 다리형책상 세트 1200폭 (도어포함)", "category": "책상", "total_qty": 389, "total_amt": 230397122}, {"code": "IFI0011A", "name": "뉴트 사이드 행거장 600폭", "category": "옷장", "total_qty": 370, "total_amt": 66825831}, {"code": "ICB0010A", "name": "뉴트 책장 6단 600폭 (하부깊은서랍형)", "category": "책장", "total_qty": 348, "total_amt": 121439370}, {"code": "IBS0024A", "name": "뉴트 조명형 수납침대장세트 (SS,세로수납형,헤드쿠션포함)", "category": "침대", "total_qty": 332, "total_amt": 352652186}, {"code": "ICB0006A", "name": "뉴트 책장 6단 800폭", "category": "책장", "total_qty": 328, "total_amt": 81668181}, {"code": "IDL0004A", "name": "뉴트 다리형책상 1200폭 (스크린형,거치형 레이어드 패널포함)", "category": "책상", "total_qty": 311, "total_amt": 107251140}, {"code": "ICB0004A", "name": "뉴트 책장 6단 400폭", "category": "책장", "total_qty": 298, "total_amt": 48364942}, {"code": "IDM0012A", "name": "뉴트 1400폭 홈오피스 모션데스크", "category": "책상", "total_qty": 292, "total_amt": 255157343}, {"code": "ICD0026A", "name": "뉴트 책장도어 2단 800폭", "category": "책장", "total_qty": 274, "total_amt": 19384696}, {"code": "ICB0002A", "name": "뉴트 책장 5단 600폭", "category": "책장", "total_qty": 262, "total_amt": 44855404}, {"code": "IDL0015A", "name": "뉴트 6단 다리형책상 ㄱ형 세트 1400폭 (도어포함)", "category": "책상", "total_qty": 255, "total_amt": 247504963}, {"code": "IFI0015A", "name": "뉴트 400폭 좁은장", "category": "옷장", "total_qty": 236, "total_amt": 61771916}, {"code": "ICB0020A", "name": "뉴트 5단 ㄱ형 사이드장", "category": "책장", "total_qty": 232, "total_amt": 64122142}], "view2": [{"code": "IFW0038A", "name": "뉴트 2단 서랍옷장 800폭 (H2055)", "peak": 794, "off": 568, "ratio": 1.4, "category": "옷장"}, {"code": "ICB0005A", "name": "뉴트 책장 6단 600폭", "peak": 673, "off": 597, "ratio": 1.1, "category": "책장"}, {"code": "ICD0025A", "name": "뉴트 책장도어 2단 600폭", "peak": 673, "off": 558, "ratio": 1.2, "category": "책장"}, {"code": "IDL0011A", "name": "뉴트 6단 다리형책상 세트 1400폭 (도어포함)", "peak": 584, "off": 475, "ratio": 1.2, "category": "책상"}, {"code": "IDM0016A", "name": "뉴트 1400폭 6단 수납선반형 모션데스크 세트 (도어포함)", "peak": 581, "off": 0, "ratio": 999, "category": "책상"}, {"code": "IVP0011A", "name": "뉴트 파티션 책장 1400폭 (D210)", "peak": 525, "off": 689, "ratio": 0.8, "category": "파티션책장"}, {"code": "IBS0021A", "name": "뉴트 조명형 수납침대 (SS,세로수납형,헤드쿠션포함)", "peak": 518, "off": 503, "ratio": 1.0, "category": "침대"}, {"code": "ICB0023A", "name": "뉴트 6단 ㄱ형 사이드장(D290)", "peak": 514, "off": 0, "ratio": 999, "category": "책장"}, {"code": "ICB0021A", "name": "뉴트 6단 ㄱ형 사이드장", "peak": 504, "off": 0, "ratio": 999, "category": "책장"}, {"code": "IFI0012A", "name": "뉴트 사이드 화장대장 600폭", "peak": 449, "off": 299, "ratio": 1.5, "category": "옷장"}, {"code": "ICD0024A", "name": "뉴트 책장도어 2단 400폭", "peak": 403, "off": 307, "ratio": 1.3, "category": "책장"}, {"code": "ICB0016A", "name": "뉴트 포인트장 6단 290폭 (D290)", "peak": 393, "off": 328, "ratio": 1.2, "category": "책장"}, {"code": "IDL0010A", "name": "뉴트 6단 다리형책상 세트 1200폭 (도어포함)", "peak": 389, "off": 326, "ratio": 1.2, "category": "책상"}, {"code": "IFI0011A", "name": "뉴트 사이드 행거장 600폭", "peak": 370, "off": 233, "ratio": 1.6, "category": "옷장"}, {"code": "ICB0010A", "name": "뉴트 책장 6단 600폭 (하부깊은서랍형)", "peak": 348, "off": 230, "ratio": 1.5, "category": "책장"}, {"code": "IBS0024A", "name": "뉴트 조명형 수납침대장세트 (SS,세로수납형,헤드쿠션포함)", "peak": 332, "off": 234, "ratio": 1.4, "category": "침대"}, {"code": "ICB0006A", "name": "뉴트 책장 6단 800폭", "peak": 328, "off": 336, "ratio": 1.0, "category": "책장"}, {"code": "IDL0004A", "name": "뉴트 다리형책상 1200폭 (스크린형,거치형 레이어드 패널포함)", "peak": 311, "off": 329, "ratio": 0.9, "category": "책상"}, {"code": "ICB0004A", "name": "뉴트 책장 6단 400폭", "peak": 298, "off": 206, "ratio": 1.4, "category": "책장"}, {"code": "IDM0012A", "name": "뉴트 1400폭 홈오피스 모션데스크", "peak": 292, "off": 0, "ratio": 999, "category": "책상"}], "view3": [{"a": "뉴트 책장 6단 600폭", "b": "뉴트 책장도어 2단 600폭", "ca": "ICB0005A", "cb": "ICD0025A", "n": 15, "s": 3.07, "cA": 34.9, "cB": 48.4, "nA": 43, "nB": 31}, {"a": "뉴트 책장 6단 600폭 (하부깊은서랍형)", "b": "뉴트 책장도어 2단 600폭", "ca": "ICB0010A", "cb": "ICD0025A", "n": 12, "s": 2.45, "cA": 52.2, "cB": 38.7, "nA": 23, "nB": 31}, {"a": "뉴트 책장 6단 800폭", "b": "뉴트 책장도어 2단 800폭", "ca": "ICB0006A", "cb": "ICD0026A", "n": 12, "s": 2.45, "cA": 85.7, "cB": 66.7, "nA": 14, "nB": 18}, {"a": "뉴트 사이드 행거장 600폭", "b": "뉴트 2단 서랍옷장 800폭 (H2055)", "ca": "IFI0011A", "cb": "IFW0038A", "n": 11, "s": 2.25, "cA": 55.0, "cB": 26.8, "nA": 20, "nB": 41}, {"a": "뉴트 책장 6단 400폭", "b": "뉴트 책장도어 2단 400폭", "ca": "ICB0004A", "cb": "ICD0024A", "n": 9, "s": 1.84, "cA": 45.0, "cB": 33.3, "nA": 20, "nB": 27}, {"a": "뉴트 책장 6단 600폭 (하부깊은서랍형)", "b": "뉴트 6단 다리형책상 세트 1400폭 (도어포함)", "ca": "ICB0010A", "cb": "IDL0011A", "n": 8, "s": 1.64, "cA": 34.8, "cB": 15.7, "nA": 23, "nB": 51}, {"a": "뉴트 6단 ㄱ형 사이드장", "b": "뉴트 책장도어 2단 400폭", "ca": "ICB0021A", "cb": "ICD0024A", "n": 8, "s": 1.64, "cA": 40.0, "cB": 29.6, "nA": 20, "nB": 27}, {"a": "뉴트 사이드 화장대장 600폭", "b": "뉴트 2단 서랍옷장 800폭 (H2055)", "ca": "IFI0012A", "cb": "IFW0038A", "n": 8, "s": 1.64, "cA": 30.8, "cB": 19.5, "nA": 26, "nB": 41}, {"a": "뉴트 책장 6단 400폭", "b": "뉴트 6단 다리형책상 세트 1400폭 (도어포함)", "ca": "ICB0004A", "cb": "IDL0011A", "n": 8, "s": 1.64, "cA": 40.0, "cB": 15.7, "nA": 20, "nB": 51}, {"a": "뉴트 책장도어 2단 400폭", "b": "뉴트 6단 다리형책상 세트 1400폭 (도어포함)", "ca": "ICD0024A", "cb": "IDL0011A", "n": 8, "s": 1.64, "cA": 29.6, "cB": 15.7, "nA": 27, "nB": 51}, {"a": "뉴트 400폭 좁은장", "b": "뉴트 2단 서랍옷장 800폭 (H2055)", "ca": "IFI0015A", "cb": "IFW0038A", "n": 7, "s": 1.43, "cA": 70.0, "cB": 17.1, "nA": 10, "nB": 41}, {"a": "뉴트 6단 ㄱ형 사이드장(D290)", "b": "뉴트 290폭 2단 도어 (6단 ㄱ형 사이드장 전용)", "ca": "ICB0023A", "cb": "ICD0031A", "n": 7, "s": 1.43, "cA": 30.4, "cB": 100.0, "nA": 23, "nB": 7}, {"a": "뉴트 책장 6단 600폭 (하부깊은서랍형)", "b": "뉴트 1400폭 6단 수납선반형 모션데스크 세트 (도어포함)", "ca": "ICB0010A", "cb": "IDM0016A", "n": 7, "s": 1.43, "cA": 30.4, "cB": 17.9, "nA": 23, "nB": 39}, {"a": "뉴트 6단 ㄱ형 사이드장", "b": "뉴트 1400폭 6단 수납선반형 모션데스크 세트 (도어포함)", "ca": "ICB0021A", "cb": "IDM0016A", "n": 7, "s": 1.43, "cA": 35.0, "cB": 17.9, "nA": 20, "nB": 39}, {"a": "뉴트 6단 다리형책상 세트 1400폭 (도어포함)", "b": "뉴트 사이드 화장대장 600폭", "ca": "IDL0011A", "cb": "IFI0012A", "n": 7, "s": 1.43, "cA": 13.7, "cB": 26.9, "nA": 51, "nB": 26}], "view3_desk": [{"a": "뉴트 책장 6단 600폭 (하부깊은서랍형)", "b": "뉴트 6단 다리형책상 세트 1400폭 (도어포함)", "ca": "ICB0010A", "cb": "IDL0011A", "n": 8, "s": 1.64, "cA": 34.8, "cB": 15.7, "nA": 23, "nB": 51}, {"a": "뉴트 책장 6단 400폭", "b": "뉴트 6단 다리형책상 세트 1400폭 (도어포함)", "ca": "ICB0004A", "cb": "IDL0011A", "n": 8, "s": 1.64, "cA": 40.0, "cB": 15.7, "nA": 20, "nB": 51}, {"a": "뉴트 책장도어 2단 400폭", "b": "뉴트 6단 다리형책상 세트 1400폭 (도어포함)", "ca": "ICD0024A", "cb": "IDL0011A", "n": 8, "s": 1.64, "cA": 29.6, "cB": 15.7, "nA": 27, "nB": 51}, {"a": "뉴트 책장 6단 600폭 (하부깊은서랍형)", "b": "뉴트 1400폭 6단 수납선반형 모션데스크 세트 (도어포함)", "ca": "ICB0010A", "cb": "IDM0016A", "n": 7, "s": 1.43, "cA": 30.4, "cB": 17.9, "nA": 23, "nB": 39}, {"a": "뉴트 6단 ㄱ형 사이드장", "b": "뉴트 1400폭 6단 수납선반형 모션데스크 세트 (도어포함)", "ca": "ICB0021A", "cb": "IDM0016A", "n": 7, "s": 1.43, "cA": 35.0, "cB": 17.9, "nA": 20, "nB": 39}, {"a": "뉴트 6단 다리형책상 세트 1400폭 (도어포함)", "b": "뉴트 사이드 화장대장 600폭", "ca": "IDL0011A", "cb": "IFI0012A", "n": 7, "s": 1.43, "cA": 13.7, "cB": 26.9, "nA": 51, "nB": 26}], "view4_qty": {"1개": 165, "2개": 110, "3~4개": 108, "5~6개": 59, "7~9개": 34, "10개+": 13}, "view4_unique": {"1종류": 177, "2종류": 106, "3~4종류": 102, "5~6종류": 69, "7종류+": 35}, "total_customers": 489, "avg_qty": 3.0, "avg_unique": 2.9, "cat_monthly": {"책상": {"2025-01": 1230, "2025-02": 1690, "2025-04": 530, "2025-05": 604, "2025-06": 638, "2025-07": 763, "2025-08": 791, "2025-09": 563, "2025-10": 565, "2025-11": 925, "2025-12": 1482, "2026-01": 2071, "2026-02": 2115}, "침대": {"2025-01": 426, "2025-02": 661, "2025-04": 197, "2025-05": 219, "2025-06": 219, "2025-07": 242, "2025-08": 270, "2025-09": 177, "2025-10": 208, "2025-11": 308, "2025-12": 474, "2026-01": 727, "2026-02": 678}, "책장": {"2025-01": 1044, "2025-02": 1361, "2025-04": 526, "2025-05": 512, "2025-06": 633, "2025-07": 724, "2025-08": 794, "2025-09": 527, "2025-10": 472, "2025-11": 894, "2025-12": 1483, "2026-01": 2040, "2026-02": 2163}, "옷장": {"2025-01": 374, "2025-02": 507, "2025-04": 198, "2025-05": 220, "2025-06": 178, "2025-07": 209, "2025-08": 222, "2025-09": 169, "2025-10": 174, "2025-11": 320, "2025-12": 606, "2026-01": 797, "2026-02": 740}, "파티션책장": {"2025-01": 206, "2025-02": 253, "2025-04": 87, "2025-05": 84, "2025-06": 87, "2025-07": 122, "2025-08": 126, "2025-09": 87, "2025-10": 96, "2025-11": 127, "2025-12": 145, "2026-01": 249, "2026-02": 230}, "수납": {"2025-01": 103, "2025-02": 137, "2025-04": 64, "2025-05": 88, "2025-06": 64, "2025-07": 87, "2025-08": 92, "2025-09": 65, "2025-10": 81, "2025-11": 94, "2025-12": 126, "2026-01": 159, "2026-02": 170}, "악세서리": {"2025-01": 233, "2025-02": 292, "2025-04": 108, "2025-05": 100, "2025-06": 103, "2025-07": 127, "2025-08": 162, "2025-09": 85, "2025-10": 110, "2025-11": 138, "2025-12": 221, "2026-01": 320, "2026-02": 257}}, "all_months": ["2025-01", "2025-02", "2025-04", "2025-05", "2025-06", "2025-07", "2025-08", "2025-09", "2025-10", "2025-11", "2025-12", "2026-01", "2026-02"]};
+
+// 5개 카테고리 컬러 (일룸 톤 — warm muted)
+const CAT_COLORS = {
+  '책상':     '#5B7B9A',
+  '책장':     '#7BA08C',
+  '파티션책장': '#4A9070',
+  '옷장':     '#8B7BAA',
+  '침대':     '#C07A5C',
+  '수납':     '#C4A76C',
+  '악세서리':  '#A0A0A0',
+  '기타':     '#CCCCCC'
+};
+
+const BRAND_RED = '#c80a1e';
+
+Chart.defaults.font.family = "'Noto Sans KR', sans-serif";
+Chart.defaults.font.size = 12;
+Chart.defaults.color = '#999999';
+Chart.defaults.plugins.legend.labels.usePointStyle = true;
+Chart.defaults.plugins.legend.labels.pointStyle = 'rect';
+
+// KPIs
+document.getElementById('kpi-items').innerHTML = DATA.view1.length + '<span class="unit"></span>';
+document.getElementById('kpi-customers').innerHTML = DATA.total_customers.toLocaleString() + '<span class="unit">명</span>';
+document.getElementById('kpi-avg-qty').innerHTML = DATA.avg_qty + '<span class="unit">개</span>';
+document.getElementById('kpi-avg-unique').innerHTML = DATA.avg_unique + '<span class="unit">종</span>';
+
+function buildLegend(containerId, data) {
+  const cats = [...new Set(data.map(d => d.category))];
+  document.getElementById(containerId).innerHTML = cats.map(c =>
+    '<div class="legend-item"><div class="legend-dot" style="background:' + (CAT_COLORS[c]||'#ccc') + '"></div>' + c + '</div>'
+  ).join('');
+}
+buildLegend('legend-view1', DATA.view1);
+
+// === VIEW 1 ===
+let chart1;
+function renderView1(mode) {
+  if (chart1) chart1.destroy();
+  const sorted = [...DATA.view1].sort((a, b) => mode === 'qty' ? a.total_qty - b.total_qty : a.total_amt - b.total_amt);
+  const labels = sorted.map(d => { let n = d.name; if (n.length > 30) n = n.substring(0, 30) + '...'; return n; });
+  const values = sorted.map(d => mode === 'qty' ? d.total_qty : d.total_amt);
+  const colors = sorted.map(d => CAT_COLORS[d.category] || '#ccc');
+
+  chart1 = new Chart(document.getElementById('chart-view1'), {
+    type: 'bar',
+    data: { labels, datasets: [{ data: values, backgroundColor: colors, borderRadius: 0, borderSkipped: false }] },
+    options: {
+      indexAxis: 'y', responsive: true, maintainAspectRatio: false,
+      plugins: {
+        legend: { display: false },
+        tooltip: {
+          backgroundColor: '#333', titleFont: { weight: '600' },
+          callbacks: {
+            title: (items) => sorted[items[0].dataIndex].name,
+            label: (item) => {
+              const d = sorted[item.dataIndex];
+              return mode === 'qty'
+                ? '수주량: ' + d.total_qty.toLocaleString() + '개'
+                : '수주금액: ' + Math.round(d.total_amt / 10000).toLocaleString() + '만원';
+            },
+            afterLabel: (item) => sorted[item.dataIndex].category + ' | ' + sorted[item.dataIndex].code
+          }
+        }
+      },
+      scales: {
+        x: { grid: { color: '#F0F0F0' }, ticks: { font: { family: 'Montserrat' }, callback: (v) => mode === 'qty' ? v.toLocaleString() : Math.round(v / 100000000) + '억' } },
+        y: { grid: { display: false }, ticks: { font: { size: 11 } } }
+      }
+    }
+  });
+}
+function toggleView1(btn, mode) {
+  btn.closest('.tab-bar').querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  renderView1(mode);
+}
+renderView1('qty');
+
+// === VIEW 2: Trend ===
+const monthLabels = DATA.all_months.map(m => { const p = m.split('-'); return p[0].slice(2) + '.' + p[1]; });
+const peakIdx = new Set([0, 1, 9, 10, 11, 12]);
+const mainCats = ['책상', '책장', '파티션책장', '옷장', '침대', '수납'];
+const trendDS = [];
+mainCats.forEach(cat => {
+  if (!DATA.cat_monthly[cat]) return;
+  trendDS.push({
+    label: cat,
+    data: DATA.all_months.map(m => DATA.cat_monthly[cat][m] || 0),
+    borderColor: CAT_COLORS[cat],
+    backgroundColor: CAT_COLORS[cat] + '20',
+    fill: false, tension: 0.3, pointRadius: 4, borderWidth: 2,
+    pointBackgroundColor: CAT_COLORS[cat],
+  });
+});
+
+new Chart(document.getElementById('chart-trend'), {
+  type: 'line',
+  data: { labels: monthLabels, datasets: trendDS },
+  options: {
+    responsive: true, maintainAspectRatio: false,
+    plugins: {
+      legend: { position: 'top', labels: { padding: 16, font: { size: 11 } } },
+      tooltip: { backgroundColor: '#333', callbacks: { label: (item) => item.dataset.label + ': ' + item.raw.toLocaleString() + '개' } }
+    },
+    scales: {
+      x: {
+        grid: {
+          color: (ctx) => peakIdx.has(ctx.index) ? 'rgba(200,10,30,0.08)' : '#F0F0F0',
+          lineWidth: (ctx) => peakIdx.has(ctx.index) ? 30 : 1,
+        },
+        ticks: { font: { family: 'Montserrat', size: 11 } }
+      },
+      y: { grid: { color: '#F0F0F0' }, ticks: { font: { family: 'Montserrat' }, callback: v => v.toLocaleString() } }
+    }
+  }
+});
+
+// === VIEW 2-1 ===
+const v2Labels = DATA.view2.map(d => { let n = d.name; if (n.length > 26) n = n.substring(0, 26) + '...'; return n; });
+
+new Chart(document.getElementById('chart-view2'), {
+  type: 'bar',
+  data: {
+    labels: v2Labels,
+    datasets: [
+      { label: '성수기 (25.11~26.02)', data: DATA.view2.map(d => d.peak), backgroundColor: BRAND_RED, borderRadius: 0 },
+      { label: '비수기 (3~10월)', data: DATA.view2.map(d => d.off), backgroundColor: '#E0E0E0', borderRadius: 0 }
+    ]
+  },
+  options: {
+    indexAxis: 'y', responsive: true, maintainAspectRatio: false,
+    plugins: {
+      legend: { position: 'top', labels: { padding: 16, font: { size: 11 } } },
+      tooltip: {
+        backgroundColor: '#333',
+        callbacks: {
+          title: (items) => DATA.view2[items[0].dataIndex].name,
+          afterBody: (items) => {
+            const r = DATA.view2[items[0].dataIndex].ratio;
+            return r >= 999 ? '성수기 전용 품목' : '성수기 집중비: ' + r + '배';
+          }
+        }
+      }
+    },
+    scales: {
+      x: { grid: { color: '#F0F0F0' }, ticks: { font: { family: 'Montserrat' }, callback: v => v.toLocaleString() } },
+      y: { grid: { display: false }, ticks: { font: { size: 11 } } }
+    }
+  }
+});
+
+const newItems = DATA.view2.filter(d => d.ratio > 50);
+const stableItems = DATA.view2.filter(d => d.off > 0 && d.ratio < 3);
+let v2i = '';
+if (newItems.length > 0) v2i += '<strong>성수기 전용 품목:</strong> ' + newItems.map(d => d.name.substring(0, 24)).join(', ') + '<br>';
+if (stableItems.length > 0) v2i += '<strong>연중 안정 판매:</strong> ' + stableItems.map(d => d.name.substring(0, 24)).join(', ');
+document.getElementById('insight-view2').innerHTML = v2i || '대부분의 품목이 성수기에 집중되어 있습니다.';
+
+// === VIEW 3 ===
+function sn(n) { n = n.replace(/뉴트 /g, ''); if (n.length > 22) n = n.substring(0, 22) + '...'; return n; }
+let h3 = '';
+DATA.view3.slice(0, 15).forEach((p, i) => {
+  const mc = Math.max(p.cA, p.cB);
+  const bw = Math.max(Math.round(mc * 0.7), 3);
+  h3 += '<div class="pair-row">' +
+    '<div class="pair-num">' + (i+1) + '</div>' +
+    '<div class="pair-items"><b>' + sn(p.a) + '</b><br>+ <b>' + sn(p.b) + '</b></div>' +
+    '<div class="pair-stat">' + p.n + '<span class="unit">명</span></div>' +
+    '<div class="pair-conf"><div class="conf-bar" style="width:' + bw + 'px"></div><span class="conf-text">' + mc + '%</span></div>' +
+    '</div>';
+});
+document.getElementById('copurchase-list').innerHTML = h3;
+
+if (DATA.view3.length > 0) {
+  const tp = DATA.view3[0];
+  document.getElementById('insight-view3').innerHTML =
+    '<strong>Top 조합:</strong> ' + sn(tp.a) + ' + ' + sn(tp.b) +
+    ' (' + tp.n + '명, 신뢰도 ' + Math.max(tp.cA, tp.cB) + '%)' +
+    '<br>책장+도어, 사이드장+패널 등 수납 조합이 강함. 세트 구성 시 반영 권장.';
+} else {
+  document.getElementById('insight-view3').innerHTML = '동시구매 데이터 없음';
+}
+
+// === VIEW 3-1: 책상 포함 동시구매 ===
+function renderPairList(containerId, pairs, max) {
+  let html = '';
+  pairs.slice(0, max).forEach((p, i) => {
+    const mc = Math.max(p.cA, p.cB);
+    const bw = Math.max(Math.round(mc * 0.7), 3);
+    html += '<div class="pair-row">' +
+      '<div class="pair-num">' + (i+1) + '</div>' +
+      '<div class="pair-items"><b>' + sn(p.a) + '</b><br>+ <b>' + sn(p.b) + '</b></div>' +
+      '<div class="pair-stat">' + p.n + '<span class="unit">명</span></div>' +
+      '<div class="pair-conf"><div class="conf-bar" style="width:' + bw + 'px"></div><span class="conf-text">' + mc + '%</span></div>' +
+      '</div>';
+  });
+  document.getElementById(containerId).innerHTML = html;
+}
+renderPairList('copurchase-desk-list', DATA.view3_desk, 15);
+
+if (DATA.view3_desk.length > 0) {
+  const tp = DATA.view3_desk[0];
+  document.getElementById('insight-view3-desk').innerHTML =
+    '<strong>Top 책상 조합:</strong> ' + sn(tp.a) + ' + ' + sn(tp.b) +
+    ' (' + tp.n + '명, 신뢰도 ' + Math.max(tp.cA, tp.cB) + '%)' +
+    '<br>책상과 함께 구매되는 품목 파악 → 성수기 세트 구성 참고.';
+} else {
+  document.getElementById('insight-view3-desk').innerHTML = '책상 포함 동시구매 데이터 없음';
+}
+
+// === VIEW 4 ===
+let chart4;
+function renderView4(mode) {
+  if (chart4) chart4.destroy();
+  const bins = mode === 'qty' ? DATA.view4_qty : DATA.view4_unique;
+  const labels = Object.keys(bins);
+  const values = Object.values(bins);
+  const total = values.reduce((a, b) => a + b, 0);
+  const barColors = values.map((_, i) => {
+    const ratio = i / (values.length - 1);
+    const r = Math.round(200 - ratio * 80);
+    const g = Math.round(10 + ratio * 150);
+    const b2 = Math.round(30 + ratio * 130);
+    return 'rgb(' + r + ',' + g + ',' + b2 + ')';
+  });
+  chart4 = new Chart(document.getElementById('chart-view4'), {
+    type: 'bar',
+    data: { labels, datasets: [{ data: values, backgroundColor: barColors, borderRadius: 0 }] },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      plugins: {
+        legend: { display: false },
+        tooltip: { backgroundColor: '#333', callbacks: { afterLabel: (item) => Math.round(item.raw / total * 100) + '% of total' } }
+      },
+      scales: {
+        x: { grid: { display: false }, ticks: { font: { size: 11 } } },
+        y: { grid: { color: '#F0F0F0' }, ticks: { font: { family: 'Montserrat' }, callback: v => v + '명' } }
+      }
+    }
+  });
+  const mr = Math.round((1 - values[0] / total) * 100);
+  document.getElementById('insight-view4').innerHTML = mode === 'qty'
+    ? '<strong>' + mr + '%</strong>의 고객이 2개 이상 구매. 평균 구매수량 <strong>' + DATA.avg_qty + '개</strong>.'
+    : '<strong>' + mr + '%</strong>의 고객이 2종류 이상 구매. 평균 <strong>' + DATA.avg_unique + '종</strong>. 크로스셀링 기회 존재.';
+}
+function toggleView4(btn, mode) {
+  btn.closest('.tab-bar').querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  renderView4(mode);
+}
+renderView4('qty');
+</script>
+</body>
+</html>

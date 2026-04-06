@@ -1,0 +1,316 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>1200/1400폭 책상 시장 가격 비교</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: 'Pretendard','Apple SD Gothic Neo','Malgun Gothic',sans-serif; background: #f5f5f7; color: #1d1d1f; padding: 20px; }
+  h1 { font-size: 22px; font-weight: 700; margin-bottom: 4px; }
+  .sub { font-size: 13px; color: #86868b; margin-bottom: 20px; }
+  .card { background: #fff; border-radius: 14px; padding: 20px; margin-bottom: 20px; box-shadow: 0 1px 3px rgba(0,0,0,0.08); }
+  .card-title { font-size: 17px; font-weight: 700; margin-bottom: 2px; }
+  .card-desc { font-size: 12px; color: #86868b; margin-bottom: 14px; }
+  .legend { display:flex; gap:14px; margin-bottom:12px; font-size:12px; flex-wrap:wrap; }
+  .legend span { display:flex; align-items:center; gap:4px; }
+  .ld { width:10px; height:10px; border-radius:50%; display:inline-block; }
+  .strip { overflow-x:auto; }
+  .tt { position:fixed; display:none; background:rgba(20,20,22,.95); color:#fff; padding:10px 14px; border-radius:10px; font-size:12px; line-height:1.6; pointer-events:none; z-index:100; max-width:300px; box-shadow:0 4px 16px rgba(0,0,0,.3); }
+  .tt b { font-size:14px; }
+  .filter-row { display:flex; gap:6px; margin-bottom:14px; flex-wrap:wrap; }
+  .fb { font-size:11px; padding:5px 12px; border-radius:16px; border:1px solid #d2d2d7; background:#fff; cursor:pointer; }
+  .fb:hover { background:#f0f0f0; }
+  .fb.on { background:#1d1d1f; color:#fff; border-color:#1d1d1f; }
+</style>
+</head>
+<body>
+<h1>1200폭 / 1400폭 책상 시장 가격 비교</h1>
+<p class="sub">2026-03-06 기준 | 일룸 뉴트 = 개별 제품 점 · 타사 = 브랜드 가격 레인지</p>
+
+<div class="card">
+  <div class="card-title">1200폭 책상 가격 분포</div>
+  <div class="card-desc">일룸 뉴트 전 제품(엑셀 기준) + 타사 브랜드별 가격 레인지</div>
+  <div class="legend">
+    <span><span class="ld" style="background:#3B82F6"></span>일반 책상</span>
+    <span><span class="ld" style="background:#F59E0B"></span>책상 세트</span>
+    <span><span class="ld" style="background:#EF4444"></span>모션데스크</span>
+    <span><span class="ld" style="background:#10B981"></span>모션 세트</span>
+    <span style="margin-left:8px"><span class="ld" style="background:#ddd;width:14px;height:4px;border-radius:2px"></span>타사 레인지</span>
+  </div>
+  <div class="filter-row" id="f1200">
+    <button class="fb on" data-f="all">전체</button>
+    <button class="fb" data-f="normal">일반</button>
+    <button class="fb" data-f="set">세트</button>
+    <button class="fb" data-f="motion">모션</button>
+    <button class="fb" data-f="motionset">모션세트</button>
+  </div>
+  <div class="strip" id="c1200"></div>
+</div>
+
+<div class="card">
+  <div class="card-title">1400폭 책상 가격 분포</div>
+  <div class="card-desc">일룸 뉴트 전 제품(엑셀 기준) + 타사 브랜드별 가격 레인지</div>
+  <div class="legend">
+    <span><span class="ld" style="background:#3B82F6"></span>일반 책상</span>
+    <span><span class="ld" style="background:#F59E0B"></span>책상 세트</span>
+    <span><span class="ld" style="background:#EF4444"></span>모션데스크</span>
+    <span><span class="ld" style="background:#10B981"></span>모션 세트</span>
+    <span style="margin-left:8px"><span class="ld" style="background:#ddd;width:14px;height:4px;border-radius:2px"></span>타사 레인지</span>
+  </div>
+  <div class="filter-row" id="f1400">
+    <button class="fb on" data-f="all">전체</button>
+    <button class="fb" data-f="normal">일반</button>
+    <button class="fb" data-f="set">세트</button>
+    <button class="fb" data-f="motion">모션</button>
+    <button class="fb" data-f="motionset">모션세트</button>
+  </div>
+  <div class="strip" id="c1400"></div>
+</div>
+
+<div class="tt" id="tt"></div>
+
+<script>
+const TC = {normal:'#3B82F6',set:'#F59E0B',motion:'#EF4444',motionset:'#10B981'};
+const TL = {normal:'일반 책상',set:'책상 세트',motion:'모션데스크',motionset:'모션 세트'};
+
+// ── 뉴트 전체 (엑셀 기준, 색상 중복 제거) ──
+const newt1200 = [
+  {n:'다리형책상',p:269000,t:'normal'},
+  {n:'스크린형',p:349000,t:'normal'},
+  {n:'스크린형+패드거치대',p:379000,t:'normal'},
+  {n:'홈오피스',p:699000,t:'normal'},
+  {n:'5단 전면 세트',p:899000,t:'set'},
+  {n:'5단 전면 세트(도어)',p:979000,t:'set'},
+  {n:'6단 전면 세트',p:979000,t:'set'},
+  {n:'6단 전면 세트(도어)',p:1059000,t:'set'},
+  {n:'5단 ㄱ형 세트',p:1199000,t:'set'},
+  {n:'5단 ㄱ형 세트(도어)',p:1279000,t:'set'},
+  {n:'6단 ㄱ형 세트',p:1314000,t:'set'},
+  {n:'6단 ㄱ형 세트(도어)',p:1394000,t:'set'},
+  {n:'기본형 모션데스크',p:675000,t:'motion'},
+  {n:'스크린형 모션데스크',p:750000,t:'motion'},
+  {n:'홈오피스 모션데스크',p:949000,t:'motion'},
+  {n:'5단 기본형 모션세트',p:1106000,t:'motionset'},
+  {n:'5단 기본형 모션세트(도어)',p:1209000,t:'motionset'},
+  {n:'6단 기본형 모션세트',p:1194000,t:'motionset'},
+  {n:'6단 기본형 모션세트(도어)',p:1291000,t:'motionset'},
+  {n:'5단 수납선반 모션세트',p:1312000,t:'motionset'},
+  {n:'5단 수납선반 모션세트(도어)',p:1415000,t:'motionset'},
+  {n:'6단 수납선반 모션세트',p:1400000,t:'motionset'},
+  {n:'6단 수납선반 모션세트(도어)',p:1497000,t:'motionset'},
+];
+const newt1400 = [
+  {n:'다리형책상',p:299000,t:'normal'},
+  {n:'스크린형',p:389000,t:'normal'},
+  {n:'스크린형+패드거치대',p:419000,t:'normal'},
+  {n:'홈오피스',p:769000,t:'normal'},
+  {n:'5단 전면 세트',p:999000,t:'set'},
+  {n:'5단 전면 세트(도어)',p:1099000,t:'set'},
+  {n:'6단 전면 세트',p:1109000,t:'set'},
+  {n:'6단 전면 세트(도어)',p:1209000,t:'set'},
+  {n:'5단 ㄱ형 세트',p:1299000,t:'set'},
+  {n:'5단 ㄱ형 세트(도어)',p:1399000,t:'set'},
+  {n:'6단 ㄱ형 세트',p:1444000,t:'set'},
+  {n:'6단 ㄱ형 세트(도어)',p:1544000,t:'set'},
+  {n:'기본형 모션데스크',p:699000,t:'motion'},
+  {n:'스크린형 모션데스크',p:784000,t:'motion'},
+  {n:'홈오피스 모션데스크',p:999000,t:'motion'},
+  {n:'5단 기본형 모션세트',p:1169000,t:'motionset'},
+  {n:'5단 기본형 모션세트(도어)',p:1280000,t:'motionset'},
+  {n:'6단 기본형 모션세트',p:1264000,t:'motionset'},
+  {n:'6단 기본형 모션세트(도어)',p:1384000,t:'motionset'},
+  {n:'5단 수납선반 모션세트',p:1384000,t:'motionset'},
+  {n:'5단 수납선반 모션세트(도어)',p:1495000,t:'motionset'},
+  {n:'6단 수납선반 모션세트',p:1479000,t:'motionset'},
+  {n:'6단 수납선반 모션세트(도어)',p:1599000,t:'motionset'},
+];
+
+// ── 타사 브랜드 데이터 (min, max, 제품 리스트) ──
+const comp1200 = [
+  {b:'데스커',color:'#004E98',items:[
+    {n:'컴데2.0 D600',p:160000,t:'normal'},{n:'컴데2.0 D700',p:175000,t:'normal'},
+    {n:'모션 스마트',p:573000,t:'motion'},{n:'모션 플러스',p:644000,t:'motion'},{n:'모션 플러스 이동형',p:665000,t:'motion'},
+  ]},
+  {b:'데스커(최저가)',color:'#5BA4E6',items:[
+    {n:'컴데2.0 D600',p:129000,t:'normal'},{n:'컴데2.0 D700',p:145000,t:'normal'},
+    {n:'모션 스마트',p:456000,t:'motion'},{n:'모션 플러스',p:509000,t:'motion'},
+  ]},
+  {b:'한샘',color:'#2ECC71',items:[{n:'숨결론드코너',p:89900,t:'normal'},{n:'하이높이각도조절',p:501000,t:'normal'}]},
+  {b:'리바트',color:'#9B59B6',items:[{n:'조인',p:205000,t:'normal'},{n:'프레일하부수납',p:474000,t:'normal'}]},
+  {b:'에몬스',color:'#E74C3C',items:[{n:'스테이',p:190000,t:'normal'}]},
+  {b:'이케아',color:'#0058A3',items:[
+    {n:'LAGKAPTEN/ALEX',p:168900,t:'normal'},{n:'UTMANING게이밍',p:259000,t:'normal'},
+    {n:'TROTTEN높이조절',p:309000,t:'motion'},{n:'MITTZON전동',p:419000,t:'motion'},
+  ]},
+  {b:'소프시스',color:'#1ABC9C',items:[{n:'메이저',p:44900,t:'normal'},{n:'브릿지',p:99000,t:'normal'}]},
+  {b:'듀오백',color:'#E67E22',items:[{n:'DB012',p:104000,t:'normal'},{n:'DC012',p:169000,t:'normal'}]},
+  {b:'보루네오',color:'#8E44AD',items:[{n:'마르체밀리',p:157440,t:'normal'},{n:'넥스베이직',p:259000,t:'normal'}]},
+  {b:'제닉스',color:'#C0392B',items:[{n:'ARENA POLAR',p:99000,t:'normal'}]},
+  {b:'카멜마운트',color:'#2980B9',items:[{n:'핏쳐E2',p:208050,t:'motion'},{n:'핏쳐E1+',p:239000,t:'motion'}]},
+  {b:'롱코',color:'#27AE60',items:[{n:'이지퀵',p:203550,t:'motion'},{n:'듀얼2스텝',p:259000,t:'motion'}]},
+  {b:'루나랩',color:'#7D3C98',items:[{n:'수동',p:179000,t:'motion'},{n:'슬림',p:269000,t:'motion'}]},
+  {b:'FlexiSpot',color:'#34495E',items:[{n:'E7',p:445470,t:'motion'}]},
+  {b:'코멧',color:'#95A5A6',items:[{n:'멀티',p:27610,t:'normal'}]},
+  {b:'락키홈즈',color:'#7F8C8D',items:[{n:'게이밍',p:59400,t:'normal'}]},
+  {b:'SAMMU',color:'#5D6D7E',items:[{n:'L자코너',p:62800,t:'normal'}]},
+  {b:'에이픽스',color:'#566573',items:[{n:'GD001',p:89000,t:'normal'}]},
+];
+
+const comp1400 = [
+  {b:'데스커',color:'#004E98',items:[
+    {n:'컴데2.0 D700',p:201000,t:'normal'},{n:'컴데2.0 D800',p:208000,t:'normal'},
+    {n:'모션 스마트',p:587000,t:'motion'},{n:'모션 플러스',p:670000,t:'motion'},
+    {n:'플러스이동형',p:691000,t:'motion'},{n:'프리미엄',p:709000,t:'motion'},
+  ]},
+  {b:'데스커(최저가)',color:'#5BA4E6',items:[
+    {n:'컴데2.0 D700',p:159000,t:'normal'},{n:'컴데2.0 D800',p:165000,t:'normal'},
+    {n:'모션 플러스',p:529000,t:'motion'},{n:'프리미엄',p:709000,t:'motion'},
+  ]},
+  {b:'에몬스',color:'#E74C3C',items:[{n:'아이누리',p:330000,t:'normal'},{n:'레이어드',p:330000,t:'normal'}]},
+  {b:'이케아',color:'#0058A3',items:[{n:'MITTZON밋손',p:229000,t:'normal'}]},
+  {b:'소프시스',color:'#1ABC9C',items:[{n:'메이저',p:48900,t:'normal'},{n:'알파듀얼',p:83900,t:'normal'}]},
+  {b:'듀오백',color:'#E67E22',items:[{n:'DB014',p:125000,t:'normal'},{n:'DC014',p:189000,t:'normal'}]},
+  {b:'보루네오',color:'#8E44AD',items:[{n:'마르체밀리',p:181440,t:'normal'},{n:'5단세트',p:404100,t:'set'}]},
+  {b:'까사미아',color:'#D35400',items:[{n:'노아',p:549000,t:'normal'},{n:'클로이',p:715000,t:'normal'}]},
+  {b:'제닉스',color:'#C0392B',items:[{n:'ARENA-X핸들',p:130000,t:'motion'},{n:'ZEROD EL',p:289000,t:'motion'}]},
+  {b:'카멜마운트',color:'#2980B9',items:[{n:'핏쳐M1+',p:168110,t:'motion'}]},
+  {b:'롱코',color:'#27AE60',items:[{n:'더파이널',p:180570,t:'motion'},{n:'3STEP',p:330000,t:'motion'}]},
+  {b:'루나랩',color:'#7D3C98',items:[{n:'베이직',p:299000,t:'motion'}]},
+  {b:'FlexiSpot',color:'#34495E',items:[{n:'E7',p:464070,t:'motion'}]},
+  {b:'SAMMU',color:'#5D6D7E',items:[{n:'L자코너',p:58800,t:'normal'}]},
+  {b:'라자가구',color:'#6C7A89',items:[{n:'세이지',p:67410,t:'normal'}]},
+  {b:'린백토리',color:'#85929E',items:[{n:'LTG814D',p:85405,t:'normal'}]},
+];
+
+// ── SVG 그리기 ──
+const tt = document.getElementById('tt');
+function showTT(e,html) {
+  tt.innerHTML = html; tt.style.display='block';
+  const r = e.target.getBoundingClientRect();
+  tt.style.left = r.left + 'px'; tt.style.top = (r.top - 70) + 'px';
+}
+function hideTT() { tt.style.display='none'; }
+
+function draw(cid, fid, newtData, compData) {
+  let filter = 'all';
+  const M = {top:30,right:20,bottom:56,left:66};
+
+  function matchFilter(t) {
+    if (filter==='all') return true;
+    if (filter==='motion') return t==='motion';
+    if (filter==='motionset') return t==='motionset';
+    if (filter==='normal') return t==='normal';
+    if (filter==='set') return t==='set';
+    return true;
+  }
+
+  function render() {
+    const el = document.getElementById(cid);
+    const fNewt = newtData.filter(d => matchFilter(d.t));
+    const fComp = compData.map(c => {
+      const fi = c.items.filter(i => matchFilter(i.t));
+      return {...c, items: fi};
+    }).filter(c => c.items.length > 0);
+
+    if (!fNewt.length && !fComp.length) { el.innerHTML='<p style="color:#aaa;padding:16px">해당 제품이 없습니다</p>'; return; }
+
+    const allPrices = [...fNewt.map(d=>d.p), ...fComp.flatMap(c=>c.items.map(i=>i.p))];
+    const yMax = Math.ceil(Math.max(...allPrices) / 100000) * 100000 + 50000;
+
+    const NEWT_W = Math.max(200, fNewt.length * 16 + 40);
+    const COMP_W = fComp.length * 70;
+    const GAP = 30;
+    const totalW = M.left + NEWT_W + GAP + COMP_W + M.right;
+    const H = 540;
+    const chartH = H - M.top - M.bottom;
+
+    const yS = p => M.top + chartH - (p / yMax * chartH);
+
+    let s = `<svg width="${totalW}" height="${H}" style="display:block">`;
+
+    // Y축 가격 가이드
+    for (let p = 0; p <= yMax; p += 100000) {
+      const y = yS(p);
+      s += `<line x1="${M.left}" y1="${y}" x2="${totalW - M.right}" y2="${y}" stroke="#eee" stroke-width="1"/>`;
+      s += `<text x="${M.left-6}" y="${y+4}" text-anchor="end" font-size="10" fill="#999">${p/10000}만</text>`;
+    }
+
+    // ── 일룸 뉴트 영역 ──
+    const nx0 = M.left;
+    const nx1 = M.left + NEWT_W;
+    s += `<rect x="${nx0}" y="${M.top}" width="${NEWT_W}" height="${chartH}" fill="#FFF7ED" rx="6"/>`;
+    s += `<text x="${nx0 + NEWT_W/2}" y="${H - M.bottom + 16}" text-anchor="middle" font-size="13" font-weight="700" fill="#FF6B35">일룸 뉴트</text>`;
+    s += `<text x="${nx0 + NEWT_W/2}" y="${H - M.bottom + 30}" text-anchor="middle" font-size="10" fill="#aaa">${fNewt.length}개 제품</text>`;
+
+    // 뉴트 점 배치 (가격순 정렬 후 좌→우)
+    const sorted = [...fNewt].sort((a,b) => a.p - b.p);
+    const dotGap = Math.min(16, (NEWT_W - 20) / Math.max(sorted.length, 1));
+    const startX = nx0 + 10 + (NEWT_W - 20 - dotGap * (sorted.length - 1)) / 2;
+
+    sorted.forEach((d, i) => {
+      const cx = startX + i * dotGap;
+      const cy = yS(d.p);
+      const col = TC[d.t];
+      s += `<circle cx="${cx}" cy="${cy}" r="5" fill="${col}" stroke="#fff" stroke-width="1.5" style="cursor:pointer"
+        onmouseenter="showTT(event,'<b>뉴트 ${esc(d.n)}</b><br>${TL[d.t]}<br><b>${d.p.toLocaleString()}원</b>')"
+        onmouseleave="hideTT()"/>`;
+    });
+
+    // ── 타사 레인지 영역 ──
+    const compX0 = nx1 + GAP;
+    fComp.forEach((c, ci) => {
+      const cx = compX0 + ci * 70 + 35;
+      const prices = c.items.map(i => i.p);
+      const minP = Math.min(...prices);
+      const maxP = Math.max(...prices);
+      const y1 = yS(maxP);
+      const y2 = yS(minP);
+
+      // 레인지 바
+      if (prices.length > 1) {
+        s += `<line x1="${cx}" y1="${y1}" x2="${cx}" y2="${y2}" stroke="${c.color}33" stroke-width="18" stroke-linecap="round"/>`;
+        s += `<line x1="${cx}" y1="${y1}" x2="${cx}" y2="${y2}" stroke="${c.color}" stroke-width="3" stroke-linecap="round"/>`;
+      }
+
+      // 개별 점
+      c.items.forEach(item => {
+        const iy = yS(item.p);
+        const col = TC[item.t] || c.color;
+        s += `<circle cx="${cx}" cy="${iy}" r="4.5" fill="${col}" stroke="#fff" stroke-width="1.2" style="cursor:pointer"
+          onmouseenter="showTT(event,'<b>${esc(c.b)}</b><br>${esc(item.n)} · ${TL[item.t]||''}<br><b>${item.p.toLocaleString()}원</b>')"
+          onmouseleave="hideTT()"/>`;
+      });
+
+      // 브랜드명
+      s += `<text x="${cx}" y="${H - M.bottom + 14}" text-anchor="middle" font-size="10" font-weight="600" fill="${c.color}">${esc(c.b)}</text>`;
+      // 가격 범위 텍스트
+      const rangeText = prices.length > 1
+        ? `${(minP/10000).toFixed(0)}~${(maxP/10000).toFixed(0)}만`
+        : `${(minP/10000).toFixed(0)}만`;
+      s += `<text x="${cx}" y="${H - M.bottom + 26}" text-anchor="middle" font-size="9" fill="#aaa">${rangeText}</text>`;
+    });
+
+    s += '</svg>';
+    el.innerHTML = s;
+  }
+
+  render();
+
+  document.getElementById(fid).querySelectorAll('.fb').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.getElementById(fid).querySelectorAll('.fb').forEach(b => b.classList.remove('on'));
+      btn.classList.add('on');
+      filter = btn.dataset.f;
+      render();
+    });
+  });
+}
+
+function esc(s) { return s.replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+
+draw('c1200','f1200', newt1200, comp1200);
+draw('c1400','f1400', newt1400, comp1400);
+</script>
+</body>
+</html>

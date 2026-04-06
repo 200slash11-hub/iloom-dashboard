@@ -1,0 +1,504 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>학생방 성수기 수주분석 대시보드</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700&family=Noto+Sans+KR:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<style>
+:root {
+  --brand-red: #c80a1e;
+  --brand-red-light: rgba(200, 10, 30, 0.08);
+  --bg-main: #FFFFFF;
+  --bg-alt: #F8F8F8;
+  --text-primary: #333333;
+  --text-secondary: #999999;
+  --border: #E0E0E0;
+  --border-light: #F0F0F0;
+}
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body {
+  font-family: 'Noto Sans KR', -apple-system, sans-serif;
+  background: var(--bg-alt); color: var(--text-primary);
+  -webkit-font-smoothing: antialiased; line-height: 1.6; letter-spacing: -0.2px;
+}
+.header { background: var(--bg-main); border-bottom: 1px solid var(--border); padding: 28px 40px 24px; }
+.header-inner { max-width: 1200px; margin: 0 auto; }
+.header-brand { font-family: 'Montserrat'; font-weight: 700; font-size: 14px; color: var(--brand-red); letter-spacing: 2px; margin-bottom: 8px; }
+.header h1 { font-size: 24px; font-weight: 600; margin-bottom: 4px; }
+.header .subtitle { font-size: 13px; color: var(--text-secondary); }
+
+.kpi-bar { max-width: 1200px; margin: 24px auto 0; padding: 0 40px; display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; }
+.kpi { background: var(--bg-main); border: 1px solid var(--border); padding: 20px 24px; text-align: center; }
+.kpi .value { font-family: 'Montserrat'; font-size: 28px; font-weight: 700; line-height: 1.2; }
+.kpi .value .unit { font-family: 'Noto Sans KR'; font-size: 13px; font-weight: 400; color: var(--text-secondary); margin-left: 2px; }
+.kpi .label { font-size: 12px; color: var(--text-secondary); margin-top: 6px; }
+.kpi .change { font-size: 13px; font-weight: 600; margin-top: 4px; }
+.kpi .change.up { color: #2ecc71; }
+.kpi .change.down { color: var(--brand-red); }
+
+.dashboard { max-width: 1200px; margin: 24px auto; padding: 0 40px; display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+.card { background: var(--bg-main); border: 1px solid var(--border); padding: 24px; }
+.card.full { grid-column: 1 / -1; }
+.card h2 { font-size: 15px; font-weight: 600; margin-bottom: 2px; }
+.card .card-sub { font-size: 12px; color: var(--text-secondary); margin-bottom: 20px; }
+.chart-container { position: relative; height: 380px; }
+.chart-container.tall { height: 450px; }
+
+.tab-bar { display: flex; gap: 0; margin-bottom: 20px; border-bottom: 1px solid var(--border); }
+.tab-btn {
+  padding: 8px 16px; border: none; background: transparent; cursor: pointer;
+  font-family: 'Noto Sans KR'; font-size: 13px; color: var(--text-secondary);
+  border-bottom: 2px solid transparent; margin-bottom: -1px; transition: color 0.2s;
+}
+.tab-btn:hover { color: var(--text-primary); }
+.tab-btn.active { color: var(--brand-red); font-weight: 500; border-bottom-color: var(--brand-red); }
+
+.insight {
+  background: var(--brand-red-light); border-left: 3px solid var(--brand-red);
+  padding: 14px 18px; margin-top: 16px; font-size: 13px; line-height: 1.7;
+}
+.insight strong { color: var(--brand-red); }
+
+table { width: 100%; border-collapse: collapse; font-size: 13px; }
+table th { background: var(--bg-alt); padding: 10px 12px; text-align: right; font-weight: 600; border-bottom: 1px solid var(--border); }
+table th:first-child { text-align: left; }
+table td { padding: 8px 12px; border-bottom: 1px solid var(--border-light); text-align: right; }
+table td:first-child { text-align: left; font-weight: 500; }
+.yoy-up { color: #2ecc71; font-weight: 600; }
+.yoy-down { color: var(--brand-red); font-weight: 600; }
+
+.footer {
+  max-width: 1200px; margin: 0 auto; padding: 24px 40px;
+  text-align: center; font-size: 12px; color: var(--text-secondary);
+  border-top: 1px solid var(--border);
+}
+.footer .brand { font-family: 'Montserrat'; font-weight: 600; color: var(--brand-red); letter-spacing: 1px; }
+
+@media (max-width: 900px) {
+  .dashboard { grid-template-columns: 1fr; padding: 0 16px; }
+  .kpi-bar { grid-template-columns: repeat(2, 1fr); padding: 0 16px; }
+}
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="header-inner">
+    <div class="header-brand">iloom</div>
+    <h1>학생방 성수기 수주분석</h1>
+    <div class="subtitle">25-26 성수기 (25.11~26.03) vs 24-25 성수기 (24.11~25.03) | 전 시리즈 비교</div>
+  </div>
+</div>
+
+<div class="kpi-bar">
+  <div class="kpi">
+    <div class="value" id="kpi-total">-</div>
+    <div class="label">25-26 스터디 총 수주금액</div>
+    <div class="change" id="kpi-total-yoy">-</div>
+  </div>
+  <div class="kpi">
+    <div class="value" id="kpi-newt">-</div>
+    <div class="label">뉴트 수주금액</div>
+    <div class="change" id="kpi-newt-yoy">-</div>
+  </div>
+  <div class="kpi">
+    <div class="value" id="kpi-roy">-</div>
+    <div class="label">로이 수주금액</div>
+    <div class="change" id="kpi-roy-yoy">-</div>
+  </div>
+  <div class="kpi">
+    <div class="value" id="kpi-share">-</div>
+    <div class="label">뉴트 점유율</div>
+    <div class="change" id="kpi-share-chg">-</div>
+  </div>
+</div>
+
+<div class="dashboard">
+
+  <!-- 1. 시리즈별 월별 수주금액 추이 -->
+  <div class="card full">
+    <h2>1. 시리즈별 월별 수주금액 추이</h2>
+    <div class="card-sub">25-26 성수기 (실선) vs 24-25 성수기 (점선)</div>
+    <div class="chart-container">
+      <canvas id="chart-series-trend"></canvas>
+    </div>
+  </div>
+
+  <!-- 2. 시리즈별 점유율 변화 -->
+  <div class="card">
+    <h2>2. 시리즈별 점유율 변화</h2>
+    <div class="card-sub">스터디 카테고리 내 수주금액 비중</div>
+    <div class="chart-container">
+      <canvas id="chart-share"></canvas>
+    </div>
+  </div>
+
+  <!-- 3. 시리즈별 YoY 성장률 -->
+  <div class="card">
+    <h2>3. 시리즈별 YoY 성장률</h2>
+    <div class="card-sub">전년 동기 대비 수주금액 증감</div>
+    <div class="chart-container">
+      <canvas id="chart-yoy"></canvas>
+    </div>
+  </div>
+
+  <!-- 4. 시리즈별 카테고리 구성 -->
+  <div class="card full">
+    <h2>4. 시리즈별 카테고리 구성 (25-26 성수기)</h2>
+    <div class="card-sub">책상류, 수납장, 침대, 패키지 비중</div>
+    <div class="chart-container">
+      <canvas id="chart-cat-stack"></canvas>
+    </div>
+  </div>
+
+  <!-- 5. 책상 수주 상세 -->
+  <div class="card full">
+    <h2>5. 책상 시리즈별 수주 수량 (25-26 성수기)</h2>
+    <div class="card-sub">모션책상 + 일반책상 | 전년 대비 변화</div>
+    <div class="tab-bar">
+      <button class="tab-btn active" onclick="toggleDesk(this, 'total')">모션+일반 합산</button>
+      <button class="tab-btn" onclick="toggleDesk(this, 'split')">모션/일반 분리</button>
+    </div>
+    <div class="chart-container tall">
+      <canvas id="chart-desk"></canvas>
+    </div>
+    <div class="insight" id="insight-desk"></div>
+  </div>
+
+  <!-- 6. 일룸 전체 카테고리 비중 -->
+  <div class="card full">
+    <h2>6. 일룸 전체 카테고리별 수주비중 변화</h2>
+    <div class="card-sub">스터디 카테고리의 전사 비중 추이</div>
+    <div class="chart-container">
+      <canvas id="chart-cat-ratio"></canvas>
+    </div>
+  </div>
+
+</div>
+
+<div class="footer">
+  <span class="brand">iloom</span> 고문정팀 | Generated 2026-03-12
+</div>
+
+<script>
+const D = {"series_amt_2526": {"뉴트": [1435972551, 2505378798, 3439165536, 3453404453, 674489803], "로이": [883134474, 1362112104, 1708578790, 1698736093, 287383419], "링키플러스": [619344535, 905414253, 1095365796, 1140110346, 161810899], "멘디": [314933741, 483044653, 646225280, 690090693, 73509743]}, "series_amt_2425": {"뉴트": [102737858, 981035827, 1885004466, 2646587511, 331654222], "로이": [1124360363, 2011520007, 2386922743, 2880911891, 386631374], "링키플러스": [671914729, 1313765096, 1561415564, 1761786167, 197988583], "멘디": [435140223, 427437597, 651643611, 811625595, 47953946]}, "series_total_2526": {"뉴트": 11508411141, "로이": 5939944880, "링키플러스": 3922045829, "멘디": 2207804110}, "series_total_2425": {"뉴트": 5947019884, "로이": 8790346378, "링키플러스": 5506870139, "멘디": 2373800972}, "series_yoy": {"뉴트": 93.5, "로이": -32.4, "링키플러스": -28.8, "멘디": -7.0}, "series_share_2526": {"뉴트": 48.8, "로이": 25.2, "링키플러스": 16.6, "멘디": 9.4}, "series_share_2425": {"뉴트": 26.3, "로이": 38.9, "링키플러스": 24.3, "멘디": 10.5}, "grand_total_2526": 23578205960, "grand_total_2425": 22618037373, "series_cat_2526": {"뉴트": {"수납장": [349647844, 596655850, 799970158, 806428490, 150311663], "책상 및 책상류": [814232750, 1484462061, 2005797517, 2055232825, 418631968], "침대": [272091957, 424260887, 633397861, 591743138, 105546172]}, "로이": {"수납장": [332932716, 432991498, 529244274, 552108728, 91255898], "책상 및 책상류": [550201758, 929120606, 1179334516, 1146627365, 196127521]}, "링키플러스": {"수납장": [189061570, 256402789, 314768908, 300210741, 45224567], "책상 및 책상류": [430282965, 649011464, 780596888, 839899605, 116586332]}, "멘디": {"수납장": [64301691, 97450164, 140248313, 144664164, 20950862], "책상 및 책상류": [73183805, 119494225, 184554839, 168053524, 18518395], "침대": [40237675, 63287176, 105976415, 113286223, 14375637], "패키지": [137210570, 202813088, 215445713, 264086782, 19664849]}}, "series_cat_2425": {"뉴트": {"수납장": [26683734, 212276922, 432908776, 566144045, 67494127], "책상 및 책상류": [52502369, 552333777, 1046879610, 1468085113, 184331863], "침대": [23551755, 216425128, 405216080, 612358353, 79828232]}, "로이": {"수납장": [370387655, 612323663, 726818525, 846017304, 113174517], "책상 및 책상류": [753972708, 1399196344, 1660104218, 2034894587, 273456857]}, "링키플러스": {"수납장": [213716079, 385307551, 455427041, 495588850, 56864629], "책상 및 책상류": [458198650, 928457545, 1105988523, 1266197317, 141123954]}, "멘디": {"수납장": [116319195, 120307407, 178344906, 197288298, 15882121], "책상 및 책상류": [117539307, 118291133, 166238022, 172875974, 14279905], "침대": [65996550, 62769060, 90734355, 92763990, 6354534], "패키지": [135285171, 126069997, 216326328, 348697333, 11437386]}}, "desk_2526": {"모션책상": {"뉴트": [276, 581, 848, 887, 187], "로이": [118, 167, 204, 199, 44], "멘디": [53, 133, 197, 193, 17], "링키플러스": [90, 135, 156, 145, 19]}, "일반책상": {"로이": [582, 1019, 1252, 1221, 200], "뉴트": [637, 891, 1218, 1212, 221], "로이모노": [398, 573, 864, 1131, 150], "링키플러스": [408, 637, 790, 880, 131], "멘디": [346, 439, 563, 595, 63], "링키S": [98, 130, 182, 162, 25], "다나": [27, 29, 35, 37, 4]}}, "desk_2425": {"모션책상": {"로이": [123, 272, 270, 373, 59], "링키플러스": [66, 147, 185, 205, 30]}, "일반책상": {"로이": [1058, 1716, 2088, 2536, 320], "뉴트": [71, 664, 1210, 1656, 207], "링키플러스": [576, 1085, 1269, 1485, 145], "로이모노": [461, 446, 813, 1419, 62], "멘디": [594, 591, 851, 1038, 66], "링키S": [123, 131, 205, 325, 16], "다나": [34, 29, 44, 55, 6]}}, "desk_t_2526": {"뉴트": {"모션": 2779, "일반": 4179}, "로이": {"모션": 732, "일반": 4274}, "멘디": {"모션": 593, "일반": 2006}, "링키플러스": {"모션": 545, "일반": 2846}, "로이모노": {"모션": 0, "일반": 3116}, "링키S": {"모션": 0, "일반": 597}, "다나": {"모션": 0, "일반": 132}}, "desk_t_2425": {"로이": {"모션": 1097, "일반": 7718}, "링키플러스": {"모션": 633, "일반": 4560}, "뉴트": {"모션": 0, "일반": 3808}, "로이모노": {"모션": 0, "일반": 3201}, "멘디": {"모션": 0, "일반": 3140}, "링키S": {"모션": 0, "일반": 800}, "다나": {"모션": 0, "일반": 168}}, "cat_ratio_2526": {"키즈": [1348384321, 1523730608, 1672251630, 1509920079, 213430503], "스터디": [5491960980, 8257164451, 10952605601, 11049220805, 1780443986], "침실": [6785104635, 6981280529, 8156173233, 7337006559, 1092922779], "LDK": [2783567363, 2897233977, 3203682499, 3038894514, 339144422], "Pet": [130636840, 122021372, 138240234, 140978565, 15964752]}, "cat_ratio_2425": {"키즈": [1834855454, 2114600660, 2352593672, 2770688236, 187842743], "스터디": [5157736323, 8405504634, 11164187039, 13874755362, 1539309449], "침실": [6634540679, 6073030282, 7012349083, 7979626835, 666524089], "LDK": [3192475127, 3196849884, 3149511339, 3424267418, 362457400], "Pet": [127301131, 125147414, 112116211, 151581727, 9764535]}, "months": ["11월", "12월", "1월", "2월", "3월"]};
+
+const SERIES_COLORS = {
+  '뉴트': '#c80a1e',
+  '로이': '#5B7B9A',
+  '링키플러스': '#7BA08C',
+  '멘디': '#C4A76C',
+  '로이모노': '#8DAEC0',
+  '링키S': '#9BC0B0',
+  '다나': '#A0A0A0',
+};
+const CAT_COLORS2 = {
+  '책상 및 책상류': '#5B7B9A',
+  '수납장': '#7BA08C',
+  '침대': '#C07A5C',
+  '패키지': '#8B7BAA',
+};
+const ILOOM_CAT_COLORS = {
+  '스터디': '#c80a1e',
+  '침실': '#5B7B9A',
+  'LDK': '#7BA08C',
+  '키즈': '#C4A76C',
+  'Pet': '#A0A0A0',
+};
+
+Chart.defaults.font.family = "'Noto Sans KR', sans-serif";
+Chart.defaults.font.size = 12;
+Chart.defaults.color = '#999';
+Chart.defaults.plugins.legend.labels.usePointStyle = true;
+Chart.defaults.plugins.legend.labels.pointStyle = 'rect';
+
+function fmtAmt(v) { return Math.round(v / 100000000).toLocaleString(); }
+function fmtAmtM(v) { return Math.round(v / 10000).toLocaleString(); }
+
+// === KPIs ===
+document.getElementById('kpi-total').innerHTML = fmtAmt(D.grand_total_2526) + '<span class="unit">억</span>';
+const totalYoY = ((D.grand_total_2526 - D.grand_total_2425) / D.grand_total_2425 * 100).toFixed(1);
+const kpiTotalEl = document.getElementById('kpi-total-yoy');
+kpiTotalEl.textContent = (totalYoY > 0 ? '+' : '') + totalYoY + '% YoY';
+kpiTotalEl.className = 'change ' + (totalYoY >= 0 ? 'up' : 'down');
+
+document.getElementById('kpi-newt').innerHTML = fmtAmt(D.series_total_2526['뉴트']) + '<span class="unit">억</span>';
+const newtEl = document.getElementById('kpi-newt-yoy');
+newtEl.textContent = (D.series_yoy['뉴트'] > 0 ? '+' : '') + D.series_yoy['뉴트'] + '% YoY';
+newtEl.className = 'change ' + (D.series_yoy['뉴트'] >= 0 ? 'up' : 'down');
+
+document.getElementById('kpi-roy').innerHTML = fmtAmt(D.series_total_2526['로이']) + '<span class="unit">억</span>';
+const royEl = document.getElementById('kpi-roy-yoy');
+royEl.textContent = (D.series_yoy['로이'] > 0 ? '+' : '') + D.series_yoy['로이'] + '% YoY';
+royEl.className = 'change ' + (D.series_yoy['로이'] >= 0 ? 'up' : 'down');
+
+document.getElementById('kpi-share').innerHTML = D.series_share_2526['뉴트'] + '<span class="unit">%</span>';
+const shareDiff = (D.series_share_2526['뉴트'] - D.series_share_2425['뉴트']).toFixed(1);
+const shareEl = document.getElementById('kpi-share-chg');
+shareEl.textContent = (shareDiff > 0 ? '+' : '') + shareDiff + '%p vs 전년';
+shareEl.className = 'change ' + (shareDiff >= 0 ? 'up' : 'down');
+
+// === 1. 시리즈별 월별 추이 ===
+const seriesNames = ['뉴트', '로이', '링키플러스', '멘디'];
+const trendDS = [];
+seriesNames.forEach(s => {
+  trendDS.push({
+    label: s + ' (25-26)',
+    data: D.series_amt_2526[s],
+    borderColor: SERIES_COLORS[s],
+    backgroundColor: SERIES_COLORS[s] + '20',
+    borderWidth: 2.5, tension: 0.3, pointRadius: 5,
+    pointBackgroundColor: SERIES_COLORS[s],
+  });
+  trendDS.push({
+    label: s + ' (24-25)',
+    data: D.series_amt_2425[s],
+    borderColor: SERIES_COLORS[s],
+    borderDash: [6, 4],
+    borderWidth: 1.5, tension: 0.3, pointRadius: 3,
+    pointBackgroundColor: SERIES_COLORS[s],
+  });
+});
+
+new Chart(document.getElementById('chart-series-trend'), {
+  type: 'line',
+  data: { labels: D.months, datasets: trendDS },
+  options: {
+    responsive: true, maintainAspectRatio: false,
+    plugins: {
+      legend: { position: 'top', labels: { padding: 12, font: { size: 11 } } },
+      tooltip: { backgroundColor: '#333', callbacks: { label: i => i.dataset.label + ': ' + fmtAmt(i.raw) + '억' } }
+    },
+    scales: {
+      y: { grid: { color: '#F0F0F0' }, ticks: { font: { family: 'Montserrat' }, callback: v => fmtAmt(v) + '억' } },
+      x: { grid: { color: '#F0F0F0' } }
+    }
+  }
+});
+
+// === 2. 점유율 변화 ===
+new Chart(document.getElementById('chart-share'), {
+  type: 'bar',
+  data: {
+    labels: seriesNames,
+    datasets: [
+      { label: '25-26 성수기', data: seriesNames.map(s => D.series_share_2526[s]), backgroundColor: seriesNames.map(s => SERIES_COLORS[s]), borderRadius: 0 },
+      { label: '24-25 성수기', data: seriesNames.map(s => D.series_share_2425[s]), backgroundColor: seriesNames.map(s => SERIES_COLORS[s] + '40'), borderRadius: 0 },
+    ]
+  },
+  options: {
+    responsive: true, maintainAspectRatio: false,
+    plugins: {
+      tooltip: { backgroundColor: '#333', callbacks: { label: i => i.dataset.label + ': ' + i.raw + '%' } }
+    },
+    scales: {
+      y: { grid: { color: '#F0F0F0' }, ticks: { font: { family: 'Montserrat' }, callback: v => v + '%' } },
+      x: { grid: { display: false } }
+    }
+  }
+});
+
+// === 3. YoY 성장률 ===
+const yoyVals = seriesNames.map(s => D.series_yoy[s]);
+new Chart(document.getElementById('chart-yoy'), {
+  type: 'bar',
+  data: {
+    labels: seriesNames,
+    datasets: [{
+      data: yoyVals,
+      backgroundColor: yoyVals.map(v => v >= 0 ? '#c80a1e' : '#E0E0E0'),
+      borderRadius: 0,
+    }]
+  },
+  options: {
+    responsive: true, maintainAspectRatio: false,
+    plugins: {
+      legend: { display: false },
+      tooltip: { backgroundColor: '#333', callbacks: { label: i => (i.raw > 0 ? '+' : '') + i.raw + '% YoY' } }
+    },
+    scales: {
+      y: { grid: { color: '#F0F0F0' }, ticks: { font: { family: 'Montserrat' }, callback: v => v + '%' } },
+      x: { grid: { display: false } }
+    }
+  }
+});
+
+// === 4. 카테고리 구성 (100% stacked) ===
+const cats = ['책상 및 책상류', '수납장', '침대', '패키지'];
+const catDS = cats.map(cat => ({
+  label: cat,
+  data: seriesNames.map(s => {
+    const catData = D.series_cat_2526[s][cat];
+    const seriesTotal = D.series_total_2526[s];
+    return catData ? Math.round(catData.reduce((a,b)=>a+b,0) / seriesTotal * 100) : 0;
+  }),
+  backgroundColor: CAT_COLORS2[cat] || '#ccc',
+  borderRadius: 0,
+}));
+
+new Chart(document.getElementById('chart-cat-stack'), {
+  type: 'bar',
+  data: { labels: seriesNames, datasets: catDS },
+  options: {
+    responsive: true, maintainAspectRatio: false,
+    plugins: {
+      legend: { position: 'top', labels: { padding: 16, font: { size: 11 } } },
+      tooltip: { backgroundColor: '#333', callbacks: { label: i => i.dataset.label + ': ' + i.raw + '%' } }
+    },
+    scales: {
+      x: { stacked: true, grid: { display: false } },
+      y: { stacked: true, max: 100, grid: { color: '#F0F0F0' }, ticks: { font: { family: 'Montserrat' }, callback: v => v + '%' } }
+    }
+  }
+});
+
+// === 5. 책상 수주 상세 ===
+let chartDesk;
+function renderDesk(mode) {
+  if (chartDesk) chartDesk.destroy();
+
+  if (mode === 'total') {
+    // 시리즈별 합산 (모션+일반)
+    const deskSeries = Object.keys(D.desk_t_2526).sort((a,b) => (D.desk_t_2526[b]['모션']+D.desk_t_2526[b]['일반']) - (D.desk_t_2526[a]['모션']+D.desk_t_2526[a]['일반']));
+    const curr = deskSeries.map(s => (D.desk_t_2526[s]['모션']||0) + (D.desk_t_2526[s]['일반']||0));
+    const prev = deskSeries.map(s => D.desk_t_2425[s] ? (D.desk_t_2425[s]['모션']||0) + (D.desk_t_2425[s]['일반']||0) : 0);
+
+    chartDesk = new Chart(document.getElementById('chart-desk'), {
+      type: 'bar',
+      data: {
+        labels: deskSeries,
+        datasets: [
+          { label: '25-26 성수기', data: curr, backgroundColor: deskSeries.map(s => SERIES_COLORS[s] || '#999'), borderRadius: 0 },
+          { label: '24-25 성수기', data: prev, backgroundColor: deskSeries.map(s => (SERIES_COLORS[s] || '#999') + '40'), borderRadius: 0 },
+        ]
+      },
+      options: {
+        responsive: true, maintainAspectRatio: false,
+        plugins: {
+          tooltip: {
+            backgroundColor: '#333',
+            callbacks: {
+              afterBody: (items) => {
+                const i = items[0].dataIndex;
+                const s = deskSeries[i];
+                if (prev[i] > 0) return 'YoY: ' + (((curr[i]-prev[i])/prev[i])*100).toFixed(1) + '%';
+                return '신규';
+              }
+            }
+          }
+        },
+        scales: {
+          y: { grid: { color: '#F0F0F0' }, ticks: { font: { family: 'Montserrat' }, callback: v => v.toLocaleString() } },
+          x: { grid: { display: false } }
+        }
+      }
+    });
+
+    // Insight
+    let maxGrowth = '', maxGrowthVal = -Infinity;
+    deskSeries.forEach((s, i) => {
+      if (prev[i] > 0) {
+        const g = (curr[i]-prev[i])/prev[i]*100;
+        if (g > maxGrowthVal) { maxGrowthVal = g; maxGrowth = s; }
+      }
+    });
+    document.getElementById('insight-desk').innerHTML =
+      '<strong>뉴트 모션책상 신규 진입</strong> (24-25에는 뉴트/멘디 모션 없음). ' +
+      '뉴트 모션 ' + (D.desk_t_2526['뉴트']?.['모션']||0).toLocaleString() + '대 수주로 모션 카테고리 1위.';
+
+  } else {
+    // 모션/일반 분리
+    const allSeries = [...new Set([
+      ...Object.keys(D.desk_2526['모션책상'] || {}),
+      ...Object.keys(D.desk_2526['일반책상'] || {})
+    ])];
+    const motionData = allSeries.map(s => {
+      const vals = D.desk_2526['모션책상']?.[s];
+      return vals ? vals.reduce((a,b)=>a+b,0) : 0;
+    });
+    const normalData = allSeries.map(s => {
+      const vals = D.desk_2526['일반책상']?.[s];
+      return vals ? vals.reduce((a,b)=>a+b,0) : 0;
+    });
+    // Sort by total
+    const indices = allSeries.map((s,i) => i).sort((a,b) => (motionData[b]+normalData[b]) - (motionData[a]+normalData[a]));
+    const sortedLabels = indices.map(i => allSeries[i]);
+    const sortedMotion = indices.map(i => motionData[i]);
+    const sortedNormal = indices.map(i => normalData[i]);
+
+    chartDesk = new Chart(document.getElementById('chart-desk'), {
+      type: 'bar',
+      data: {
+        labels: sortedLabels,
+        datasets: [
+          { label: '모션책상', data: sortedMotion, backgroundColor: '#c80a1e', borderRadius: 0 },
+          { label: '일반책상', data: sortedNormal, backgroundColor: '#5B7B9A', borderRadius: 0 },
+        ]
+      },
+      options: {
+        responsive: true, maintainAspectRatio: false,
+        plugins: {
+          legend: { position: 'top' },
+          tooltip: { backgroundColor: '#333' }
+        },
+        scales: {
+          x: { stacked: true, grid: { display: false } },
+          y: { stacked: true, grid: { color: '#F0F0F0' }, ticks: { font: { family: 'Montserrat' }, callback: v => v.toLocaleString() } }
+        }
+      }
+    });
+    document.getElementById('insight-desk').innerHTML =
+      '<strong>모션책상 비중:</strong> 뉴트가 모션 시장을 새로 개척. 전체 책상 중 모션 비중 증가 추세.';
+  }
+}
+function toggleDesk(btn, mode) {
+  btn.closest('.tab-bar').querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  renderDesk(mode);
+}
+renderDesk('total');
+
+// === 6. 전체 카테고리 비중 ===
+const iloomCats = ['스터디', '침실', 'LDK', '키즈', 'Pet'];
+const catRatioDS = [];
+iloomCats.forEach(cat => {
+  const t2526 = D.cat_ratio_2526[cat].reduce((a,b)=>a+b,0);
+  const t2425 = D.cat_ratio_2425[cat].reduce((a,b)=>a+b,0);
+  const grand2526 = Object.values(D.cat_ratio_2526).reduce((s,arr)=>s+arr.reduce((a,b)=>a+b,0), 0);
+  const grand2425 = Object.values(D.cat_ratio_2425).reduce((s,arr)=>s+arr.reduce((a,b)=>a+b,0), 0);
+  catRatioDS.push({
+    cat: cat,
+    share_2526: Math.round(t2526/grand2526*1000)/10,
+    share_2425: Math.round(t2425/grand2425*1000)/10,
+    total_2526: t2526,
+    total_2425: t2425,
+  });
+});
+
+new Chart(document.getElementById('chart-cat-ratio'), {
+  type: 'bar',
+  data: {
+    labels: catRatioDS.map(d => d.cat),
+    datasets: [
+      { label: '25-26 성수기', data: catRatioDS.map(d => d.share_2526), backgroundColor: iloomCats.map(c => ILOOM_CAT_COLORS[c]), borderRadius: 0 },
+      { label: '24-25 성수기', data: catRatioDS.map(d => d.share_2425), backgroundColor: iloomCats.map(c => ILOOM_CAT_COLORS[c] + '40'), borderRadius: 0 },
+    ]
+  },
+  options: {
+    responsive: true, maintainAspectRatio: false,
+    plugins: {
+      tooltip: { backgroundColor: '#333', callbacks: { label: i => i.dataset.label + ': ' + i.raw + '%' } }
+    },
+    scales: {
+      y: { grid: { color: '#F0F0F0' }, ticks: { font: { family: 'Montserrat' }, callback: v => v + '%' } },
+      x: { grid: { display: false } }
+    }
+  }
+});
+
+</script>
+</body>
+</html>
