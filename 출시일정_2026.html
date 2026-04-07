@@ -81,10 +81,10 @@ tailwind.config = {
       <span class="text-sm">6월 출시</span>
       <span class="ml-auto text-[10px] bg-primary/10 text-primary px-1.5 py-0.5 rounded font-bold">19</span>
     </a>
-    <a class="nav-link flex items-center px-3 py-2 text-slate-500 hover:text-slate-900 hover:bg-[#e6e8ea] transition-colors cursor-pointer opacity-50" data-page="august" onclick="switchPage('overview')">
+    <a class="nav-link flex items-center px-3 py-2 text-slate-500 hover:text-slate-900 hover:bg-[#e6e8ea] transition-colors cursor-pointer" data-page="august" onclick="switchPage('august')">
       <span class="material-symbols-outlined mr-3">event_note</span>
       <span class="text-sm">8월 출시</span>
-      <span class="ml-auto text-[9px] text-outline italic">준비중</span>
+      <span class="ml-auto text-[10px] bg-primary/10 text-primary px-1.5 py-0.5 rounded font-bold">6</span>
     </a>
     <a class="nav-link flex items-center px-3 py-2 text-slate-500 hover:text-slate-900 hover:bg-[#e6e8ea] transition-colors cursor-pointer opacity-50" data-page="november" onclick="switchPage('overview')">
       <span class="material-symbols-outlined mr-3">event_upcoming</span>
@@ -315,14 +315,47 @@ tailwind.config = {
   </section>
 
   <!-- ── 8월 출시 ── -->
-  <section class="bg-surface-container-lowest rounded-lg border border-outline-variant/10 border-dashed p-6">
-    <div class="flex items-center gap-3 mb-4">
-      <div class="w-10 h-10 rounded-lg bg-slate-100 flex items-center justify-center">
-        <span class="material-symbols-outlined text-outline">event_note</span>
+  <section class="bg-surface-container-lowest rounded-lg shadow-sm border border-outline-variant/10 p-6">
+    <div class="flex justify-between items-start mb-5">
+      <div class="flex items-center gap-3">
+        <div class="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center">
+          <span class="material-symbols-outlined text-primary">event_note</span>
+        </div>
+        <div>
+          <h3 class="text-lg font-bold text-on-surface">8월 출시</h3>
+          <p class="text-xs text-secondary">6개 프로젝트 · 키즈/학생방/서재</p>
+        </div>
       </div>
-      <div>
-        <h3 class="text-lg font-bold text-secondary">8월 출시</h3>
-        <p class="text-xs text-outline italic">프로젝트 목록 준비 중</p>
+      <div class="flex items-center gap-3">
+        <div class="flex gap-3">
+          <div class="flex items-center gap-1.5"><span class="w-2 h-2 rounded-full bg-outline-variant"></span><span class="text-xs font-medium">6 확인중</span></div>
+        </div>
+        <span class="bg-primary/10 text-primary px-3 py-1 rounded-full text-xs font-bold cursor-pointer" onclick="switchPage('august')">상세 →</span>
+      </div>
+    </div>
+
+    <!-- 프로젝트 요약 -->
+    <div class="grid grid-cols-3 gap-3">
+      <div class="bg-surface-container-low rounded p-3">
+        <p class="text-[10px] font-bold text-violet-600 uppercase tracking-wider mb-2">키즈 (2)</p>
+        <div class="space-y-1.5">
+          <div class="flex items-center gap-2 text-[11px]"><span class="w-1.5 h-1.5 rounded-full bg-violet-400"></span><span>IK18 키즈수납</span><span class="text-[9px] text-secondary ml-auto">베트남</span></div>
+          <div class="flex items-center gap-2 text-[11px]"><span class="w-1.5 h-1.5 rounded-full bg-violet-400"></span><span>두들 품목추가</span><span class="text-[9px] text-secondary ml-auto">국내</span></div>
+        </div>
+      </div>
+      <div class="bg-surface-container-low rounded p-3">
+        <p class="text-[10px] font-bold text-blue-600 uppercase tracking-wider mb-2">학생방 (2)</p>
+        <div class="space-y-1.5">
+          <div class="flex items-center gap-2 text-[11px]"><span class="w-1.5 h-1.5 rounded-full bg-blue-400"></span><span>뉴트 품목추가</span><span class="text-[9px] text-secondary ml-auto">국내</span></div>
+          <div class="flex items-center gap-2 text-[11px]"><span class="w-1.5 h-1.5 rounded-full bg-blue-400"></span><span>시디즈 뮤브</span><span class="text-[9px] text-secondary ml-auto">국내</span></div>
+        </div>
+      </div>
+      <div class="bg-surface-container-low rounded p-3">
+        <p class="text-[10px] font-bold text-tertiary uppercase tracking-wider mb-2">서재 (2)</p>
+        <div class="space-y-1.5">
+          <div class="flex items-center gap-2 text-[11px]"><span class="w-1.5 h-1.5 rounded-full bg-tertiary"></span><span>시디즈 T20</span><span class="text-[9px] text-secondary ml-auto">국내</span></div>
+          <div class="flex items-center gap-2 text-[11px]"><span class="w-1.5 h-1.5 rounded-full bg-tertiary"></span><span>시디즈 T60</span><span class="text-[9px] text-secondary ml-auto">국내</span></div>
+        </div>
       </div>
     </div>
   </section>
@@ -728,6 +761,110 @@ tailwind.config = {
 
   </div><!-- end page-june -->
 
+  <!-- ==================== PAGE: AUGUST ==================== -->
+  <div class="page-content hidden" id="page-august">
+
+  <section>
+    <h2 class="text-3xl font-extrabold tracking-tight text-on-surface">8월 출시 대시보드</h2>
+    <p class="text-sm text-secondary mt-1">프로젝트 상세 현황 · 마일스톤/리스크 추후 업데이트</p>
+  </section>
+
+  <!-- Project Table -->
+  <section class="bg-surface-container-lowest rounded-lg shadow-sm border border-outline-variant/10 overflow-hidden">
+    <div class="p-6 border-b border-outline-variant/10">
+      <div class="flex justify-between items-center mb-4">
+        <h3 class="text-lg font-bold">8월 출시 — 프로젝트 상세 현황</h3>
+        <span class="text-[10px] text-outline italic">단계·마일스톤 추후 업데이트</span>
+      </div>
+    </div>
+    <div class="overflow-x-auto">
+      <table class="w-full text-left border-collapse">
+        <thead>
+          <tr class="bg-surface-container-low/50">
+            <th class="px-3 py-3 text-[10px] font-bold text-secondary uppercase tracking-wider w-8">#</th>
+            <th class="px-3 py-3 text-[10px] font-bold text-secondary uppercase tracking-wider">카테고리</th>
+            <th class="px-3 py-3 text-[10px] font-bold text-secondary uppercase tracking-wider">프로젝트</th>
+            <th class="px-3 py-3 text-[10px] font-bold text-secondary uppercase tracking-wider">유형</th>
+            <th class="px-3 py-3 text-[10px] font-bold text-secondary uppercase tracking-wider">생산</th>
+            <th class="px-3 py-3 text-[10px] font-bold text-secondary uppercase tracking-wider">상태</th>
+            <th class="px-3 py-3 text-[10px] font-bold text-secondary uppercase tracking-wider">비고</th>
+          </tr>
+        </thead>
+        <tbody class="divide-y divide-outline-variant/5">
+
+          <!-- 1 IK18 키즈수납 -->
+          <tr class="hover:bg-surface-container-low transition-colors">
+            <td class="px-3 py-3 text-xs text-secondary">1</td>
+            <td class="px-3 py-3 text-[11px] text-secondary font-medium">키즈</td>
+            <td class="px-3 py-3"><p class="text-sm font-bold text-primary">IK18 키즈수납</p></td>
+            <td class="px-3 py-3"><span class="text-[10px] bg-violet-50 text-violet-600 px-1.5 py-0.5 rounded font-medium">—</span></td>
+            <td class="px-3 py-3"><span class="text-[10px] bg-orange-50 text-orange-600 px-1 py-0.5 rounded font-medium">베트남</span><span class="text-[10px] text-secondary"> FURSYS VN</span></td>
+            <td class="px-3 py-3"><span class="bg-outline-variant/20 text-secondary text-[10px] px-2 py-0.5 rounded font-bold">확인중</span></td>
+            <td class="px-3 py-3 text-xs text-secondary">—</td>
+          </tr>
+
+          <!-- 2 두들 품목추가 -->
+          <tr class="hover:bg-surface-container-low transition-colors">
+            <td class="px-3 py-3 text-xs text-secondary">2</td>
+            <td class="px-3 py-3 text-[11px] text-secondary font-medium">키즈</td>
+            <td class="px-3 py-3"><p class="text-sm font-bold text-primary">두들 품목추가</p><p class="text-[10px] text-secondary">크바드랏 CMF</p></td>
+            <td class="px-3 py-3"><span class="text-[10px] bg-blue-50 text-blue-600 px-1.5 py-0.5 rounded font-medium">품목추가</span></td>
+            <td class="px-3 py-3"><span class="text-[10px] bg-emerald-50 text-emerald-600 px-1 py-0.5 rounded font-medium">국내</span></td>
+            <td class="px-3 py-3"><span class="bg-outline-variant/20 text-secondary text-[10px] px-2 py-0.5 rounded font-bold">확인중</span></td>
+            <td class="px-3 py-3 text-xs text-secondary">—</td>
+          </tr>
+
+          <!-- 3 뉴트 품목추가 -->
+          <tr class="hover:bg-surface-container-low transition-colors">
+            <td class="px-3 py-3 text-xs text-secondary">3</td>
+            <td class="px-3 py-3 text-[11px] text-secondary font-medium">학생방</td>
+            <td class="px-3 py-3"><p class="text-sm font-bold text-primary">뉴트 품목추가</p><p class="text-[10px] text-secondary">크바드랏 CMF</p></td>
+            <td class="px-3 py-3"><span class="text-[10px] bg-blue-50 text-blue-600 px-1.5 py-0.5 rounded font-medium">품목추가</span></td>
+            <td class="px-3 py-3"><span class="text-[10px] bg-emerald-50 text-emerald-600 px-1 py-0.5 rounded font-medium">국내</span></td>
+            <td class="px-3 py-3"><span class="bg-outline-variant/20 text-secondary text-[10px] px-2 py-0.5 rounded font-bold">확인중</span></td>
+            <td class="px-3 py-3 text-xs text-secondary">—</td>
+          </tr>
+
+          <!-- 4 시디즈 뮤브 -->
+          <tr class="hover:bg-surface-container-low transition-colors">
+            <td class="px-3 py-3 text-xs text-secondary">4</td>
+            <td class="px-3 py-3 text-[11px] text-secondary font-medium">학생방</td>
+            <td class="px-3 py-3"><p class="text-sm font-bold text-primary">시디즈 뮤브</p></td>
+            <td class="px-3 py-3"><span class="text-[10px] bg-violet-50 text-violet-600 px-1.5 py-0.5 rounded font-medium">—</span></td>
+            <td class="px-3 py-3"><span class="text-[10px] bg-emerald-50 text-emerald-600 px-1 py-0.5 rounded font-medium">국내</span></td>
+            <td class="px-3 py-3"><span class="bg-outline-variant/20 text-secondary text-[10px] px-2 py-0.5 rounded font-bold">확인중</span></td>
+            <td class="px-3 py-3 text-xs text-secondary">—</td>
+          </tr>
+
+          <!-- 5 시디즈 T20 -->
+          <tr class="hover:bg-surface-container-low transition-colors">
+            <td class="px-3 py-3 text-xs text-secondary">5</td>
+            <td class="px-3 py-3 text-[11px] text-secondary font-medium">서재</td>
+            <td class="px-3 py-3"><p class="text-sm font-bold text-primary">시디즈 T20</p></td>
+            <td class="px-3 py-3"><span class="text-[10px] bg-violet-50 text-violet-600 px-1.5 py-0.5 rounded font-medium">—</span></td>
+            <td class="px-3 py-3"><span class="text-[10px] bg-emerald-50 text-emerald-600 px-1 py-0.5 rounded font-medium">국내</span></td>
+            <td class="px-3 py-3"><span class="bg-outline-variant/20 text-secondary text-[10px] px-2 py-0.5 rounded font-bold">확인중</span></td>
+            <td class="px-3 py-3 text-xs text-secondary">—</td>
+          </tr>
+
+          <!-- 6 시디즈 T60 -->
+          <tr class="hover:bg-surface-container-low transition-colors">
+            <td class="px-3 py-3 text-xs text-secondary">6</td>
+            <td class="px-3 py-3 text-[11px] text-secondary font-medium">서재</td>
+            <td class="px-3 py-3"><p class="text-sm font-bold text-primary">시디즈 T60</p></td>
+            <td class="px-3 py-3"><span class="text-[10px] bg-violet-50 text-violet-600 px-1.5 py-0.5 rounded font-medium">—</span></td>
+            <td class="px-3 py-3"><span class="text-[10px] bg-emerald-50 text-emerald-600 px-1 py-0.5 rounded font-medium">국내</span></td>
+            <td class="px-3 py-3"><span class="bg-outline-variant/20 text-secondary text-[10px] px-2 py-0.5 rounded font-bold">확인중</span></td>
+            <td class="px-3 py-3 text-xs text-secondary">—</td>
+          </tr>
+
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  </div><!-- end page-august -->
+
   <!-- Footer -->
   <footer class="text-center text-xs text-outline py-8 border-t border-outline-variant/10">
     <p>iloom 2026 출시 일정표 v1.2 | 기준일: 2026-04-06 | 고객문제정의팀</p>
@@ -741,7 +878,7 @@ tailwind.config = {
 const pageTitles = {
   'overview': '2026 출시 일정표',
   'june': '6월 출시 대시보드',
-  'august': '8월 출시',
+  'august': '8월 출시 대시보드',
   'november': '11월 출시'
 };
 
