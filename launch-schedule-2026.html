@@ -86,10 +86,10 @@ tailwind.config = {
       <span class="text-sm">8월 출시</span>
       <span class="ml-auto text-[10px] bg-primary/10 text-primary px-1.5 py-0.5 rounded font-bold">6</span>
     </a>
-    <a class="nav-link flex items-center px-3 py-2 text-slate-500 hover:text-slate-900 hover:bg-[#e6e8ea] transition-colors cursor-pointer opacity-50" data-page="november" onclick="switchPage('overview')">
+    <a class="nav-link flex items-center px-3 py-2 text-slate-500 hover:text-slate-900 hover:bg-[#e6e8ea] transition-colors cursor-pointer" data-page="november" onclick="switchPage('november')">
       <span class="material-symbols-outlined mr-3">event_upcoming</span>
       <span class="text-sm">11월 출시</span>
-      <span class="ml-auto text-[9px] text-outline italic">준비중</span>
+      <span class="ml-auto text-[10px] bg-primary/10 text-primary px-1.5 py-0.5 rounded font-bold">12</span>
     </a>
   </nav>
   <div class="mt-auto border-t border-outline-variant/20 pt-6">
@@ -111,8 +111,8 @@ tailwind.config = {
     <span id="header-title" class="text-lg font-bold text-[#191c1e]">2026 출시 일정표</span>
   </div>
   <div class="flex items-center gap-3">
-    <span class="text-xs text-secondary">기준일: 2026-04-06 (월)</span>
-    <span class="text-xs bg-surface-container px-2 py-1 rounded font-medium">v1.2</span>
+    <span class="text-xs text-secondary">기준일: 2026-04-07 (화)</span>
+    <span class="text-xs bg-surface-container px-2 py-1 rounded font-medium">v1.4</span>
   </div>
 </header>
 
@@ -327,10 +327,52 @@ tailwind.config = {
         </div>
       </div>
       <div class="flex items-center gap-3">
-        <div class="flex gap-3">
-          <div class="flex items-center gap-1.5"><span class="w-2 h-2 rounded-full bg-outline-variant"></span><span class="text-xs font-medium">6 확인중</span></div>
-        </div>
+        <span class="bg-primary/10 text-primary px-3 py-1 rounded-full text-xs font-bold">D-143</span>
         <span class="bg-primary/10 text-primary px-3 py-1 rounded-full text-xs font-bold cursor-pointer" onclick="switchPage('august')">상세 →</span>
+      </div>
+    </div>
+
+    <!-- 진행률 -->
+    <div class="mb-5">
+      <div class="flex justify-between text-xs mb-1.5 font-semibold">
+        <span>전체 진행률</span>
+        <span>20%</span>
+      </div>
+      <div class="w-full bg-surface-container-highest h-2.5 rounded-full overflow-hidden">
+        <div class="h-full bg-gradient-to-r from-primary to-primary-container" style="width: 20%"></div>
+      </div>
+    </div>
+
+    <!-- 마스터 일정 -->
+    <div class="border-t border-outline-variant/10 pt-4 mb-5">
+      <h4 class="text-sm font-bold mb-3 flex items-center gap-2">
+        <span class="material-symbols-outlined text-primary text-base">timeline</span>
+        마스터 일정
+        <span class="text-[10px] text-secondary font-normal ml-2">수주개시 8/28(금)</span>
+      </h4>
+      <div class="flex items-stretch gap-0 text-center">
+        <div class="flex-1 py-2 bg-tertiary/10 rounded-l-lg border border-tertiary/20 relative">
+          <p class="text-[10px] font-bold text-tertiary uppercase">기획·설계</p>
+          <p class="text-[10px] text-secondary">~1월말</p>
+          <div class="absolute top-1 right-1"><span class="text-[7px] bg-tertiary text-white px-1 rounded">완료</span></div>
+        </div>
+        <div class="flex-[1.2] py-2 bg-blue-50 border-2 border-primary/40 relative">
+          <p class="text-[10px] font-bold text-primary uppercase">샘플·품평</p>
+          <p class="text-[10px] text-secondary">3월~4/27</p>
+          <div class="absolute top-1 right-1"><span class="text-[7px] bg-primary text-white px-1 rounded">현재</span></div>
+        </div>
+        <div class="flex-1 py-2 bg-slate-50 border border-outline-variant/30">
+          <p class="text-[10px] font-bold text-secondary uppercase">ECO·양산도</p>
+          <p class="text-[10px] text-secondary">5~6월</p>
+        </div>
+        <div class="flex-1 py-2 bg-slate-50 border border-outline-variant/30">
+          <p class="text-[10px] font-bold text-secondary uppercase">양산·점검</p>
+          <p class="text-[10px] text-secondary">7월</p>
+        </div>
+        <div class="flex-[0.8] py-2 bg-slate-50 rounded-r-lg border border-outline-variant/30">
+          <p class="text-[10px] font-bold text-secondary uppercase">출시</p>
+          <p class="text-[10px] font-bold text-error">8/28</p>
+        </div>
       </div>
     </div>
 
@@ -361,14 +403,99 @@ tailwind.config = {
   </section>
 
   <!-- ── 11월 출시 ── -->
-  <section class="bg-surface-container-lowest rounded-lg border border-outline-variant/10 border-dashed p-6">
-    <div class="flex items-center gap-3 mb-4">
-      <div class="w-10 h-10 rounded-lg bg-slate-100 flex items-center justify-center">
-        <span class="material-symbols-outlined text-outline">event_upcoming</span>
+  <section class="bg-surface-container-lowest rounded-lg shadow-sm border border-outline-variant/10 p-6">
+    <div class="flex justify-between items-start mb-5">
+      <div class="flex items-center gap-3">
+        <div class="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center">
+          <span class="material-symbols-outlined text-primary">event_upcoming</span>
+        </div>
+        <div>
+          <h3 class="text-lg font-bold text-on-surface">11월 출시</h3>
+          <p class="text-xs text-secondary">12개 프로젝트 · 침실/LDK/소파/키즈/서재/스터디/펫</p>
+        </div>
       </div>
-      <div>
-        <h3 class="text-lg font-bold text-secondary">11월 출시</h3>
-        <p class="text-xs text-outline italic">프로젝트 목록 준비 중</p>
+      <div class="flex items-center gap-3">
+        <span class="bg-primary/10 text-primary px-3 py-1 rounded-full text-xs font-bold">D-230</span>
+        <span class="bg-primary/10 text-primary px-3 py-1 rounded-full text-xs font-bold cursor-pointer" onclick="switchPage('november')">상세 →</span>
+      </div>
+    </div>
+
+    <!-- 진행률 -->
+    <div class="mb-5">
+      <div class="flex justify-between text-xs mb-1.5 font-semibold">
+        <span>전체 진행률</span>
+        <span>8%</span>
+      </div>
+      <div class="w-full bg-surface-container-highest h-2.5 rounded-full overflow-hidden">
+        <div class="h-full bg-gradient-to-r from-primary to-primary-container" style="width: 8%"></div>
+      </div>
+    </div>
+
+    <!-- 마스터 일정 -->
+    <div class="border-t border-outline-variant/10 pt-4 mb-5">
+      <h4 class="text-sm font-bold mb-3 flex items-center gap-2">
+        <span class="material-symbols-outlined text-primary text-base">timeline</span>
+        마스터 일정
+        <span class="text-[10px] text-secondary font-normal ml-2">수주개시 11월 하순</span>
+      </h4>
+      <div class="flex items-stretch gap-0 text-center">
+        <div class="flex-1 py-2 bg-blue-50 rounded-l-lg border-2 border-primary/40 relative">
+          <p class="text-[10px] font-bold text-primary uppercase">기획·디자인</p>
+          <p class="text-[10px] text-secondary">1~3월</p>
+          <div class="absolute top-1 right-1"><span class="text-[7px] bg-primary text-white px-1 rounded">현재</span></div>
+        </div>
+        <div class="flex-1 py-2 bg-slate-50 border border-outline-variant/30">
+          <p class="text-[10px] font-bold text-secondary uppercase">도면·샘플</p>
+          <p class="text-[10px] text-secondary">4~7월</p>
+        </div>
+        <div class="flex-1 py-2 bg-slate-50 border border-outline-variant/30">
+          <p class="text-[10px] font-bold text-secondary uppercase">ECO·양산도</p>
+          <p class="text-[10px] text-secondary">8~9월</p>
+        </div>
+        <div class="flex-1 py-2 bg-slate-50 border border-outline-variant/30">
+          <p class="text-[10px] font-bold text-secondary uppercase">양산·출시준비</p>
+          <p class="text-[10px] text-secondary">10월</p>
+        </div>
+        <div class="flex-[0.8] py-2 bg-slate-50 rounded-r-lg border border-outline-variant/30">
+          <p class="text-[10px] font-bold text-secondary uppercase">출시</p>
+          <p class="text-[10px] font-bold text-error">11월</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- 프로젝트 요약 -->
+    <div class="grid grid-cols-4 gap-3">
+      <div class="bg-surface-container-low rounded p-3">
+        <p class="text-[10px] font-bold text-violet-600 uppercase tracking-wider mb-2">침실/매트 (2)</p>
+        <div class="space-y-1.5">
+          <div class="flex items-center gap-2 text-[11px]"><span class="w-1.5 h-1.5 rounded-full bg-violet-400"></span><span class="truncate">모션베드 2종</span></div>
+          <div class="flex items-center gap-2 text-[11px]"><span class="w-1.5 h-1.5 rounded-full bg-violet-400"></span><span class="truncate">플렉서블 매트 2종</span></div>
+        </div>
+      </div>
+      <div class="bg-surface-container-low rounded p-3">
+        <p class="text-[10px] font-bold text-blue-600 uppercase tracking-wider mb-2">LDK (4)</p>
+        <div class="space-y-1.5">
+          <div class="flex items-center gap-2 text-[11px]"><span class="w-1.5 h-1.5 rounded-full bg-blue-400"></span><span class="truncate">라운지 암체어 2종</span></div>
+          <div class="flex items-center gap-2 text-[11px]"><span class="w-1.5 h-1.5 rounded-full bg-blue-400"></span><span class="truncate">모션 리빙테이블</span></div>
+          <div class="flex items-center gap-2 text-[11px]"><span class="w-1.5 h-1.5 rounded-full bg-blue-400"></span><span class="truncate">*이동형 사이드테이블</span></div>
+          <div class="flex items-center gap-2 text-[11px]"><span class="w-1.5 h-1.5 rounded-full bg-blue-400"></span><span class="truncate">주방수납모듈시스템</span></div>
+        </div>
+      </div>
+      <div class="bg-surface-container-low rounded p-3">
+        <p class="text-[10px] font-bold text-tertiary uppercase tracking-wider mb-2">소파/서재/스터디 (3)</p>
+        <div class="space-y-1.5">
+          <div class="flex items-center gap-2 text-[11px]"><span class="w-1.5 h-1.5 rounded-full bg-tertiary"></span><span class="truncate">OEM 리빙다이닝소파</span></div>
+          <div class="flex items-center gap-2 text-[11px]"><span class="w-1.5 h-1.5 rounded-full bg-tertiary"></span><span class="truncate">거실서재 시스템선반</span></div>
+          <div class="flex items-center gap-2 text-[11px]"><span class="w-1.5 h-1.5 rounded-full bg-tertiary"></span><span class="truncate">*컴팩트 스터디책상</span></div>
+        </div>
+      </div>
+      <div class="bg-surface-container-low rounded p-3">
+        <p class="text-[10px] font-bold text-amber-600 uppercase tracking-wider mb-2">키즈/펫 (3)</p>
+        <div class="space-y-1.5">
+          <div class="flex items-center gap-2 text-[11px]"><span class="w-1.5 h-1.5 rounded-full bg-amber-400"></span><span class="truncate">신규 패밀리베드</span></div>
+          <div class="flex items-center gap-2 text-[11px]"><span class="w-1.5 h-1.5 rounded-full bg-amber-400"></span><span class="truncate">*키즈 데이베드</span></div>
+          <div class="flex items-center gap-2 text-[11px]"><span class="w-1.5 h-1.5 rounded-full bg-amber-400"></span><span class="truncate">*펫 소파테이블/수납</span></div>
+        </div>
       </div>
     </div>
   </section>
@@ -812,7 +939,79 @@ tailwind.config = {
 
   <section>
     <h2 class="text-3xl font-extrabold tracking-tight text-on-surface">8월 출시 대시보드</h2>
-    <p class="text-sm text-secondary mt-1">프로젝트 상세 현황 · 마일스톤/리스크 추후 업데이트</p>
+    <p class="text-sm text-secondary mt-1">6개 프로젝트 · 수주개시 8/28(금) · D-143</p>
+  </section>
+
+  <!-- 핵심 마일스톤 날짜 -->
+  <section class="bg-surface-container-lowest rounded-lg shadow-sm border border-outline-variant/10 p-5">
+    <div class="flex items-center gap-0 text-center">
+      <div class="flex-1 py-3 bg-tertiary/10 rounded-l-lg border border-tertiary/20 relative">
+        <p class="text-[10px] font-bold text-tertiary uppercase tracking-wider">1차 품평</p>
+        <p class="text-lg font-bold text-tertiary mt-0.5">~3월말</p>
+        <div class="absolute top-1 right-1"><span class="text-[7px] bg-tertiary text-white px-1 rounded">완료</span></div>
+      </div>
+      <div class="flex-1 py-3 bg-blue-50 border-2 border-primary/40 relative">
+        <p class="text-[10px] font-bold text-primary uppercase tracking-wider">2차 품평</p>
+        <p class="text-lg font-bold text-primary mt-0.5">~4/27</p>
+        <div class="absolute top-1 right-1"><span class="text-[7px] bg-primary text-white px-1 rounded">현재</span></div>
+      </div>
+      <div class="flex-1 py-3 bg-slate-50 border border-outline-variant/30">
+        <p class="text-[10px] font-bold text-secondary uppercase tracking-wider">시양산품 점검</p>
+        <p class="text-lg font-bold text-secondary mt-0.5">~6월초</p>
+      </div>
+      <div class="flex-1 py-3 bg-slate-50 border border-outline-variant/30">
+        <p class="text-[10px] font-bold text-secondary uppercase tracking-wider">양산 조립점검</p>
+        <p class="text-lg font-bold text-secondary mt-0.5">7/20</p>
+      </div>
+      <div class="flex-1 py-3 bg-slate-50 border border-outline-variant/30">
+        <p class="text-[10px] font-bold text-secondary uppercase tracking-wider">신제품 발표회</p>
+        <p class="text-lg font-bold text-secondary mt-0.5">7/27</p>
+      </div>
+      <div class="flex-1 py-3 bg-tertiary/5 rounded-r-lg border border-tertiary/20">
+        <p class="text-[10px] font-bold text-tertiary uppercase tracking-wider">수주 개시</p>
+        <p class="text-lg font-bold text-tertiary mt-0.5">8/28</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- 상세 일정 3칸 그리드 -->
+  <section class="bg-surface-container-lowest rounded-lg shadow-sm border border-outline-variant/10 p-5">
+    <h4 class="text-sm font-bold mb-4 flex items-center gap-2">
+      <span class="material-symbols-outlined text-primary text-base">event_note</span>
+      부서별 주요 일정
+    </h4>
+    <div class="grid grid-cols-3 gap-3">
+      <div class="bg-surface-container-low rounded p-3">
+        <p class="text-[10px] font-bold text-blue-600 uppercase tracking-wider mb-2">개발 / 생산</p>
+        <div class="space-y-1.5">
+          <div class="flex items-center gap-2 text-[11px]"><span class="w-1.5 h-1.5 rounded-full bg-tertiary"></span><span class="text-secondary min-w-[36px]">3월</span><span>1차 샘플 생산</span></div>
+          <div class="flex items-center gap-2 text-[11px]"><span class="w-1.5 h-1.5 rounded-full bg-blue-400"></span><span class="text-secondary min-w-[36px]">4월</span><span>2차 샘플 · 2차 품평</span></div>
+          <div class="flex items-center gap-2 text-[11px]"><span class="w-1.5 h-1.5 rounded-full bg-violet-400"></span><span class="text-secondary min-w-[36px]">5월</span><span>EBOM · ECO 배포</span></div>
+          <div class="flex items-center gap-2 text-[11px]"><span class="w-1.5 h-1.5 rounded-full bg-cyan-500"></span><span class="text-secondary min-w-[36px]">6월초</span><span>시양산품 점검 · 양산도</span></div>
+          <div class="flex items-center gap-2 text-[11px]"><span class="w-1.5 h-1.5 rounded-full bg-orange-500"></span><span class="min-w-[36px] font-bold text-orange-600">7/20</span><span class="font-bold text-orange-600">양산 조립점검</span></div>
+          <div class="flex items-center gap-2 text-[11px]"><span class="w-1.5 h-1.5 rounded-full bg-blue-600"></span><span class="text-secondary min-w-[36px]">8월초</span><span>본물량 · 전시품 생산</span></div>
+        </div>
+      </div>
+      <div class="bg-surface-container-low rounded p-3">
+        <p class="text-[10px] font-bold text-violet-600 uppercase tracking-wider mb-2">컨텐츠 / 촬영</p>
+        <div class="space-y-1.5">
+          <div class="flex items-center gap-2 text-[11px]"><span class="w-1.5 h-1.5 rounded-full bg-blue-400"></span><span class="text-secondary min-w-[36px]">4월</span><span>랜더링 리스트업 · 품의</span></div>
+          <div class="flex items-center gap-2 text-[11px]"><span class="w-1.5 h-1.5 rounded-full bg-violet-400"></span><span class="text-secondary min-w-[36px]">5월</span><span>제품가이드 작성</span></div>
+          <div class="flex items-center gap-2 text-[11px]"><span class="w-1.5 h-1.5 rounded-full bg-cyan-500"></span><span class="text-secondary min-w-[36px]">6월</span><span>스펙영상 촬영 · 상세페이지</span></div>
+          <div class="flex items-center gap-2 text-[11px]"><span class="w-1.5 h-1.5 rounded-full bg-orange-500"></span><span class="text-secondary min-w-[36px]">7월초</span><span>제품가이드 최종 · 스펙영상 배포</span></div>
+        </div>
+      </div>
+      <div class="bg-surface-container-low rounded p-3">
+        <p class="text-[10px] font-bold text-tertiary uppercase tracking-wider mb-2">가격 / 전시 / 출시</p>
+        <div class="space-y-1.5">
+          <div class="flex items-center gap-2 text-[11px]"><span class="w-1.5 h-1.5 rounded-full bg-blue-400"></span><span class="text-secondary min-w-[36px]">4월</span><span>ERP 코드 · 예상판매량</span></div>
+          <div class="flex items-center gap-2 text-[11px]"><span class="w-1.5 h-1.5 rounded-full bg-violet-400"></span><span class="text-secondary min-w-[36px]">5~6월</span><span>입고가·판매가 검토 확정</span></div>
+          <div class="flex items-center gap-2 text-[11px]"><span class="w-1.5 h-1.5 rounded-full bg-orange-500"></span><span class="min-w-[36px] font-bold text-orange-600">7/27</span><span class="font-bold text-orange-600">신제품 발표회</span></div>
+          <div class="flex items-center gap-2 text-[11px]"><span class="w-1.5 h-1.5 rounded-full bg-blue-600"></span><span class="text-secondary min-w-[36px]">8월초</span><span>전시품 접수 · 출고</span></div>
+          <div class="flex items-center gap-2 text-[11px]"><span class="w-1.5 h-1.5 rounded-full bg-tertiary"></span><span class="min-w-[36px] font-bold text-tertiary">8/28</span><span class="font-bold text-tertiary">수주개시</span></div>
+        </div>
+      </div>
+    </div>
   </section>
 
   <!-- Project Table -->
@@ -820,7 +1019,6 @@ tailwind.config = {
     <div class="p-6 border-b border-outline-variant/10">
       <div class="flex justify-between items-center mb-4">
         <h3 class="text-lg font-bold">8월 출시 — 프로젝트 상세 현황</h3>
-        <span class="text-[10px] text-outline italic">단계·마일스톤 추후 업데이트</span>
       </div>
     </div>
     <div class="overflow-x-auto">
@@ -911,10 +1109,212 @@ tailwind.config = {
 
   </div><!-- end page-august -->
 
+  <!-- ==================== PAGE: NOVEMBER ==================== -->
+  <div class="page-content hidden" id="page-november">
+
+  <section>
+    <h2 class="text-3xl font-extrabold tracking-tight text-on-surface">11월 출시 대시보드</h2>
+    <p class="text-sm text-secondary mt-1">12개 프로젝트 · 수주개시 11월 하순 · D-230</p>
+  </section>
+
+  <!-- 핵심 마일스톤 날짜 -->
+  <section class="bg-surface-container-lowest rounded-lg shadow-sm border border-outline-variant/10 p-5">
+    <div class="flex items-center gap-0 text-center">
+      <div class="flex-1 py-3 bg-blue-50 rounded-l-lg border-2 border-primary/40 relative">
+        <p class="text-[10px] font-bold text-primary uppercase tracking-wider">기획·디자인</p>
+        <p class="text-lg font-bold text-primary mt-0.5">~3월</p>
+        <div class="absolute top-1 right-1"><span class="text-[7px] bg-primary text-white px-1 rounded">현재</span></div>
+      </div>
+      <div class="flex-1 py-3 bg-slate-50 border border-outline-variant/30">
+        <p class="text-[10px] font-bold text-secondary uppercase tracking-wider">1차 도면·샘플</p>
+        <p class="text-lg font-bold text-secondary mt-0.5">4~5월</p>
+      </div>
+      <div class="flex-1 py-3 bg-slate-50 border border-outline-variant/30">
+        <p class="text-[10px] font-bold text-secondary uppercase tracking-wider">2차 품평</p>
+        <p class="text-lg font-bold text-secondary mt-0.5">7월</p>
+      </div>
+      <div class="flex-1 py-3 bg-slate-50 border border-outline-variant/30">
+        <p class="text-[10px] font-bold text-secondary uppercase tracking-wider">ECO·양산도</p>
+        <p class="text-lg font-bold text-secondary mt-0.5">8~9월</p>
+      </div>
+      <div class="flex-1 py-3 bg-slate-50 border border-outline-variant/30">
+        <p class="text-[10px] font-bold text-secondary uppercase tracking-wider">출시품의</p>
+        <p class="text-lg font-bold text-secondary mt-0.5">10월</p>
+      </div>
+      <div class="flex-1 py-3 bg-tertiary/5 rounded-r-lg border border-tertiary/20">
+        <p class="text-[10px] font-bold text-tertiary uppercase tracking-wider">수주 개시</p>
+        <p class="text-lg font-bold text-tertiary mt-0.5">11월</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- 상세 일정 3칸 그리드 -->
+  <section class="bg-surface-container-lowest rounded-lg shadow-sm border border-outline-variant/10 p-5">
+    <h4 class="text-sm font-bold mb-4 flex items-center gap-2">
+      <span class="material-symbols-outlined text-primary text-base">event_note</span>
+      주요 일정 (0407 ver 기준)
+    </h4>
+    <div class="grid grid-cols-3 gap-3">
+      <div class="bg-surface-container-low rounded p-3">
+        <p class="text-[10px] font-bold text-blue-600 uppercase tracking-wider mb-2">개발 / 생산</p>
+        <div class="space-y-1.5">
+          <div class="flex items-center gap-2 text-[11px]"><span class="w-1.5 h-1.5 rounded-full bg-tertiary"></span><span class="text-secondary min-w-[40px]">~3/16</span><span>디자인 컨펌</span></div>
+          <div class="flex items-center gap-2 text-[11px]"><span class="w-1.5 h-1.5 rounded-full bg-blue-400"></span><span class="text-secondary min-w-[40px]">4/20</span><span>1차 도면 배포 (→업체)</span></div>
+          <div class="flex items-center gap-2 text-[11px]"><span class="w-1.5 h-1.5 rounded-full bg-violet-400"></span><span class="text-secondary min-w-[40px]">5/25</span><span>1차 품평</span></div>
+          <div class="flex items-center gap-2 text-[11px]"><span class="w-1.5 h-1.5 rounded-full bg-cyan-500"></span><span class="text-secondary min-w-[40px]">7/13</span><span class="font-medium">2차 품평 (개발 완료 필수)</span></div>
+          <div class="flex items-center gap-2 text-[11px]"><span class="w-1.5 h-1.5 rounded-full bg-orange-500"></span><span class="text-secondary min-w-[40px]">8/17</span><span>ECO 배포</span></div>
+          <div class="flex items-center gap-2 text-[11px]"><span class="w-1.5 h-1.5 rounded-full bg-error"></span><span class="text-secondary min-w-[40px]">9/7</span><span>시양산품 점검</span></div>
+          <div class="flex items-center gap-2 text-[11px]"><span class="w-1.5 h-1.5 rounded-full bg-blue-600"></span><span class="text-secondary min-w-[40px]">10/12</span><span>양산품 조립점검</span></div>
+        </div>
+      </div>
+      <div class="bg-surface-container-low rounded p-3">
+        <p class="text-[10px] font-bold text-violet-600 uppercase tracking-wider mb-2">컨텐츠 / 가격</p>
+        <div class="space-y-1.5">
+          <div class="flex items-center gap-2 text-[11px]"><span class="w-1.5 h-1.5 rounded-full bg-blue-400"></span><span class="text-secondary min-w-[40px]">5/25</span><span>예상판매량 산정</span></div>
+          <div class="flex items-center gap-2 text-[11px]"><span class="w-1.5 h-1.5 rounded-full bg-violet-400"></span><span class="text-secondary min-w-[40px]">7/13</span><span>랜더 리스트업 · 의뢰</span></div>
+          <div class="flex items-center gap-2 text-[11px]"><span class="w-1.5 h-1.5 rounded-full bg-cyan-500"></span><span class="text-secondary min-w-[40px]">9/21</span><span>양산도 배포</span></div>
+          <div class="flex items-center gap-2 text-[11px]"><span class="w-1.5 h-1.5 rounded-full bg-orange-500"></span><span class="text-secondary min-w-[40px]">9/28</span><span class="font-medium">판매가 확정 및 보고</span></div>
+          <div class="flex items-center gap-2 text-[11px]"><span class="w-1.5 h-1.5 rounded-full bg-error"></span><span class="text-secondary min-w-[40px]">10/5</span><span class="font-medium">출시품의</span></div>
+        </div>
+      </div>
+      <div class="bg-surface-container-low rounded p-3">
+        <p class="text-[10px] font-bold text-tertiary uppercase tracking-wider mb-2">전시 / 출시</p>
+        <div class="space-y-1.5">
+          <div class="flex items-center gap-2 text-[11px]"><span class="w-1.5 h-1.5 rounded-full bg-blue-400"></span><span class="text-secondary min-w-[40px]">7~8월</span><span>금형 투입 · 제작</span></div>
+          <div class="flex items-center gap-2 text-[11px]"><span class="w-1.5 h-1.5 rounded-full bg-orange-500"></span><span class="min-w-[40px] font-bold text-orange-600">10/19</span><span class="font-bold text-orange-600">신제품 발표회 · 전시품 접수</span></div>
+          <div class="flex items-center gap-2 text-[11px]"><span class="w-1.5 h-1.5 rounded-full bg-violet-400"></span><span class="text-secondary min-w-[40px]">10월</span><span>시공교육 영상 · 교육자료</span></div>
+          <div class="flex items-center gap-2 text-[11px]"><span class="w-1.5 h-1.5 rounded-full bg-blue-600"></span><span class="text-secondary min-w-[40px]">11월초</span><span>양산 본물량 생산</span></div>
+          <div class="flex items-center gap-2 text-[11px]"><span class="w-1.5 h-1.5 rounded-full bg-tertiary"></span><span class="min-w-[40px] font-bold text-tertiary">11월</span><span class="font-bold text-tertiary">수주개시 · 컨텐츠 오픈</span></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Project Table -->
+  <section class="bg-surface-container-lowest rounded-lg shadow-sm border border-outline-variant/10 overflow-hidden">
+    <div class="p-6 border-b border-outline-variant/10">
+      <h3 class="text-lg font-bold">11월 출시 — 프로젝트 리스트</h3>
+    </div>
+    <div class="overflow-x-auto">
+      <table class="w-full text-left border-collapse">
+        <thead>
+          <tr class="bg-surface-container-low/50">
+            <th class="px-3 py-3 text-[10px] font-bold text-secondary uppercase tracking-wider w-8">#</th>
+            <th class="px-3 py-3 text-[10px] font-bold text-secondary uppercase tracking-wider">카테고리</th>
+            <th class="px-3 py-3 text-[10px] font-bold text-secondary uppercase tracking-wider">프로젝트</th>
+            <th class="px-3 py-3 text-[10px] font-bold text-secondary uppercase tracking-wider">담당자</th>
+            <th class="px-3 py-3 text-[10px] font-bold text-secondary uppercase tracking-wider">상태</th>
+            <th class="px-3 py-3 text-[10px] font-bold text-secondary uppercase tracking-wider">비고</th>
+          </tr>
+        </thead>
+        <tbody class="divide-y divide-outline-variant/5">
+          <tr class="hover:bg-surface-container-low transition-colors">
+            <td class="px-3 py-3 text-xs text-secondary">1</td>
+            <td class="px-3 py-3 text-[11px] text-secondary font-medium">침실</td>
+            <td class="px-3 py-3"><p class="text-sm font-bold text-primary">모션베드 시리즈 2종</p><p class="text-[10px] text-secondary">*온라인 무헤드</p></td>
+            <td class="px-3 py-3 text-xs">김주희</td>
+            <td class="px-3 py-3"><span class="bg-outline-variant/20 text-secondary text-[10px] px-2 py-0.5 rounded font-bold">기획중</span></td>
+            <td class="px-3 py-3 text-xs text-secondary">—</td>
+          </tr>
+          <tr class="hover:bg-surface-container-low transition-colors">
+            <td class="px-3 py-3 text-xs text-secondary">2</td>
+            <td class="px-3 py-3 text-[11px] text-secondary font-medium">매트리스</td>
+            <td class="px-3 py-3"><p class="text-sm font-bold text-primary">플렉서블 매트리스 리뉴얼 2종</p><p class="text-[10px] text-secondary">*1종 온라인</p></td>
+            <td class="px-3 py-3 text-xs">김주희</td>
+            <td class="px-3 py-3"><span class="bg-outline-variant/20 text-secondary text-[10px] px-2 py-0.5 rounded font-bold">기획중</span></td>
+            <td class="px-3 py-3 text-xs text-secondary">—</td>
+          </tr>
+          <tr class="hover:bg-surface-container-low transition-colors">
+            <td class="px-3 py-3 text-xs text-secondary">3</td>
+            <td class="px-3 py-3 text-[11px] text-secondary font-medium">키즈</td>
+            <td class="px-3 py-3"><p class="text-sm font-bold text-primary">신규 패밀리베드</p></td>
+            <td class="px-3 py-3 text-xs">채혜주</td>
+            <td class="px-3 py-3"><span class="bg-outline-variant/20 text-secondary text-[10px] px-2 py-0.5 rounded font-bold">기획중</span></td>
+            <td class="px-3 py-3 text-xs text-secondary">—</td>
+          </tr>
+          <tr class="hover:bg-surface-container-low transition-colors">
+            <td class="px-3 py-3 text-xs text-secondary">4</td>
+            <td class="px-3 py-3 text-[11px] text-secondary font-medium">키즈</td>
+            <td class="px-3 py-3"><p class="text-sm font-bold text-primary">*키즈 데이베드</p></td>
+            <td class="px-3 py-3 text-xs">채혜주</td>
+            <td class="px-3 py-3"><span class="bg-outline-variant/20 text-secondary text-[10px] px-2 py-0.5 rounded font-bold">기획중</span></td>
+            <td class="px-3 py-3 text-xs text-secondary italic">* 확정 여부 확인</td>
+          </tr>
+          <tr class="hover:bg-surface-container-low transition-colors">
+            <td class="px-3 py-3 text-xs text-secondary">5</td>
+            <td class="px-3 py-3 text-[11px] text-secondary font-medium">LDK</td>
+            <td class="px-3 py-3"><p class="text-sm font-bold text-primary">라운지 암체어 2종</p></td>
+            <td class="px-3 py-3 text-xs">이세현</td>
+            <td class="px-3 py-3"><span class="bg-outline-variant/20 text-secondary text-[10px] px-2 py-0.5 rounded font-bold">기획중</span></td>
+            <td class="px-3 py-3 text-xs text-secondary">—</td>
+          </tr>
+          <tr class="hover:bg-surface-container-low transition-colors">
+            <td class="px-3 py-3 text-xs text-secondary">6</td>
+            <td class="px-3 py-3 text-[11px] text-secondary font-medium">LDK</td>
+            <td class="px-3 py-3"><p class="text-sm font-bold text-primary">신규 모션 리빙테이블</p></td>
+            <td class="px-3 py-3 text-xs">이세현</td>
+            <td class="px-3 py-3"><span class="bg-outline-variant/20 text-secondary text-[10px] px-2 py-0.5 rounded font-bold">기획중</span></td>
+            <td class="px-3 py-3 text-xs text-secondary">—</td>
+          </tr>
+          <tr class="hover:bg-surface-container-low transition-colors">
+            <td class="px-3 py-3 text-xs text-secondary">7</td>
+            <td class="px-3 py-3 text-[11px] text-secondary font-medium">LDK</td>
+            <td class="px-3 py-3"><p class="text-sm font-bold text-primary">*이동형 사이드테이블</p></td>
+            <td class="px-3 py-3 text-xs">이세현</td>
+            <td class="px-3 py-3"><span class="bg-outline-variant/20 text-secondary text-[10px] px-2 py-0.5 rounded font-bold">기획중</span></td>
+            <td class="px-3 py-3 text-xs text-secondary italic">* 확정 여부 확인</td>
+          </tr>
+          <tr class="hover:bg-surface-container-low transition-colors">
+            <td class="px-3 py-3 text-xs text-secondary">8</td>
+            <td class="px-3 py-3 text-[11px] text-secondary font-medium">LDK</td>
+            <td class="px-3 py-3"><p class="text-sm font-bold text-primary">주방수납모듈시스템</p></td>
+            <td class="px-3 py-3 text-xs">이세현</td>
+            <td class="px-3 py-3"><span class="bg-outline-variant/20 text-secondary text-[10px] px-2 py-0.5 rounded font-bold">기획중</span></td>
+            <td class="px-3 py-3 text-xs text-secondary">—</td>
+          </tr>
+          <tr class="hover:bg-surface-container-low transition-colors">
+            <td class="px-3 py-3 text-xs text-secondary">9</td>
+            <td class="px-3 py-3 text-[11px] text-secondary font-medium">펫</td>
+            <td class="px-3 py-3"><p class="text-sm font-bold text-primary">*펫 소파테이블 · 용품수납장</p><p class="text-[10px] text-secondary">개옷장, 하네스 등</p></td>
+            <td class="px-3 py-3 text-xs">이세현</td>
+            <td class="px-3 py-3"><span class="bg-outline-variant/20 text-secondary text-[10px] px-2 py-0.5 rounded font-bold">기획중</span></td>
+            <td class="px-3 py-3 text-xs text-secondary italic">* 확정 여부 확인</td>
+          </tr>
+          <tr class="hover:bg-surface-container-low transition-colors">
+            <td class="px-3 py-3 text-xs text-secondary">10</td>
+            <td class="px-3 py-3 text-[11px] text-secondary font-medium">소파</td>
+            <td class="px-3 py-3"><p class="text-sm font-bold text-primary">OEM 리빙 다이닝 소파</p><p class="text-[10px] text-secondary">w/업모션</p></td>
+            <td class="px-3 py-3 text-xs">박상그레</td>
+            <td class="px-3 py-3"><span class="bg-outline-variant/20 text-secondary text-[10px] px-2 py-0.5 rounded font-bold">기획중</span></td>
+            <td class="px-3 py-3 text-xs text-secondary">—</td>
+          </tr>
+          <tr class="hover:bg-surface-container-low transition-colors">
+            <td class="px-3 py-3 text-xs text-secondary">11</td>
+            <td class="px-3 py-3 text-[11px] text-secondary font-medium">서재</td>
+            <td class="px-3 py-3"><p class="text-sm font-bold text-primary">거실서재 시스템선반 & 빅테이블</p></td>
+            <td class="px-3 py-3 text-xs">이연경</td>
+            <td class="px-3 py-3"><span class="bg-outline-variant/20 text-secondary text-[10px] px-2 py-0.5 rounded font-bold">기획중</span></td>
+            <td class="px-3 py-3 text-xs text-secondary">—</td>
+          </tr>
+          <tr class="hover:bg-surface-container-low transition-colors">
+            <td class="px-3 py-3 text-xs text-secondary">12</td>
+            <td class="px-3 py-3 text-[11px] text-secondary font-medium">스터디</td>
+            <td class="px-3 py-3"><p class="text-sm font-bold text-primary">*집중형 컴팩트 스터디 책상</p></td>
+            <td class="px-3 py-3 text-xs">김소현</td>
+            <td class="px-3 py-3"><span class="bg-outline-variant/20 text-secondary text-[10px] px-2 py-0.5 rounded font-bold">기획중</span></td>
+            <td class="px-3 py-3 text-xs text-secondary italic">* 확정 여부 확인</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  </div><!-- end page-november -->
+
   <!-- Footer -->
   <footer class="text-center text-xs text-outline py-8 border-t border-outline-variant/10">
-    <p>iloom 2026 출시 일정표 v1.2 | 기준일: 2026-04-06 | 고객문제정의팀</p>
-    <p class="mt-1">3/31 출시회의 반영 | 다음 업데이트: 차주 회의 전</p>
+    <p>iloom 2026 출시 일정표 v1.4 | 기준일: 2026-04-07 | 고객문제정의팀</p>
+    <p class="mt-1">8월·11월 출시 일정 반영 | 원본: 8월 출시 일정표, 11월 출시 개발 공유 시트(0407ver)</p>
   </footer>
 
 </main>
@@ -925,7 +1325,7 @@ const pageTitles = {
   'overview': '2026 출시 일정표',
   'june': '6월 출시 대시보드',
   'august': '8월 출시 대시보드',
-  'november': '11월 출시'
+  'november': '11월 출시 대시보드'
 };
 
 function switchPage(pageId) {
